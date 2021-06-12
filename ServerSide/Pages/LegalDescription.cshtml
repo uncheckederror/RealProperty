@@ -1,0 +1,140 @@
+﻿@page
+@model ServerSide.Pages.LegalDescriptionModel
+@{
+    ViewBag.Title = string.IsNullOrWhiteSpace(Model?.ParcelNumber) ? "Parcel" : Model?.ParcelNumber;
+}
+@*004000053001*@
+
+<script type="text/javascript">
+    function handleSearchQuery(textBox) {
+        var route = '/RealPropertyAccounts/Search?Query=';
+
+        fetch(`${route}${textBox.value}`)
+            .then(
+                function (response) {
+                    if (response.status !== 200) {
+                        console.log('Looks like there was a problem. Status Code: ' +
+                            response.status);
+                        return;
+                    }
+
+                    // Examine the text in the response
+                    response.json().then(function (data) {
+                        console.log(data);
+
+                        var options = '';
+
+                        for (var i = 0; i < data.length; i++) {
+                            options += '<option value="' + data[i] + '" />';
+                        }
+
+                        var datalist = document.createElement("datalist");
+                        datalist.id = 'realaccountoptions';
+                        datalist.innerHTML = options;
+                        var textBox = document.getElementById("searchInput");
+                        var check = document.getElementById('realaccountoptions');
+                        if (typeof (check) != 'undefined' && check != null) {
+                            check.remove();
+                        }
+                        textBox.appendChild(datalist);
+                        textBox.setAttribute('list', 'realaccountoptions');
+                        console.log(datalist);
+                    });
+                }
+            )
+            .catch(function (err) {
+                console.log('Fetch Error :-S', err);
+            });
+    }
+
+    function onInput(textBox) {
+        var val = document.getElementById("searchInput").value;
+        var check = document.getElementById('realaccountoptions');
+        if (typeof (check) != 'undefined' && check != null) {
+            var opts = document.getElementById('realaccountoptions').childNodes;
+            for (var i = 0; i < opts.length; i++) {
+                if (opts[i].value === val) {
+                    var form = document.getElementById("searchForm");
+                    form.submit();
+                }
+            }
+        }
+        handleSearchQuery(textBox);
+    }
+
+</script>
+
+@{
+    if (Model?.LegalDiscriptions is not null && Model.LegalDiscriptions.Any())
+    {
+        <section class="hero is-success is-small">
+            <div class="hero-body container">
+                <div class="has-text-centered">
+                    <p class="title is-1">Real Property</p>
+                    <p class="subtitle">A service of King County</p>
+                    <form asp-page="./LegalDescriptions" method="get" id="searchForm">
+                        <div class="field is-grouped">
+                            <p class="control is-expanded">
+                                <input id="searchInput" class="input is-large" name="accountNumber" type="text" placeholder="Enter an account number" value="@Model?.ParcelNumber" onchange="handleSearchQuery(this)" autocomplete="off" oninput="onInput(this)">
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="hero is-link is-halfheight">
+            <div class="hero-body container">
+                <div class="has-text-centered">
+                    <p class="title is-1">Real Property</p>
+                    <p class="subtitle">A service of King County</p>
+                    <form asp-page="./LegalDescriptions" method="get" id="searchForm">
+                        <div class="field is-grouped">
+                            <p class="control is-expanded">
+                                <input id="searchInput" class="input is-large" name="accountNumber" type="text" placeholder="Enter an account number" value="@Model?.ParcelNumber" onchange="handleSearchQuery(this)" autocomplete="off" oninput="onInput(this)">
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    }
+}
+
+@{
+    if (Model?.LegalDiscriptions is not null && Model.LegalDiscriptions.Any())
+    {
+        <section class="section container pt-3">
+            <nav class="breadcrumb is-centered has-arrow-separator mb-3" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="#">King County</a></li>
+                    <li><a href="/">Legal Descriptions</a></li>
+                    <li class="is-active"><a href="#" aria-current="page">@Model?.LegalDiscriptions.Length Results Found</a></li>
+                </ul>
+            </nav>
+            @foreach (var legal in Model.LegalDiscriptions)
+            {
+                <div class="tile is-ancestor">
+                    <div class="tile is-vertical is-8">
+                        <div class="tile">
+                            <div class="tile is-parent is-vertical">
+                                <article class="tile is-child notification is-primary">
+                                    <p class="subtitle">Parcel Number</p>
+                                    <p class="title">@legal.ParcelNumber</p>
+                                </article>
+                            </div>
+                            <div class="tile is-parent">
+                                <article class="tile is-child notification is-info">
+                                    <p class="subtitle">Legal Description</p>
+                                    <p class="title">@legal.LegalDesc</p>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </section>
+    }
+}

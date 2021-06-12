@@ -1,0 +1,987 @@
+﻿@page
+@model ServerSide.Pages.RealPropertyModel
+@{
+    ViewBag.Title = string.IsNullOrWhiteSpace(Model?.AccountNumber) ? "Accounts" : Model?.AccountNumber;
+}
+@*004000053001*@
+
+<script type="text/javascript">
+    function handleSearchQuery(textBox) {
+        var route = '/RealPropertyAccounts/Search?Query=';
+
+        fetch(`${route}${textBox.value}`)
+            .then(
+                function (response) {
+                    if (response.status !== 200) {
+                        console.log('Looks like there was a problem. Status Code: ' +
+                            response.status);
+                        return;
+                    }
+
+                    // Examine the text in the response
+                    response.json().then(function (data) {
+                        console.log(data);
+
+                        var options = '';
+
+                        for (var i = 0; i < data.length; i++) {
+                            options += '<option value="' + data[i] + '" />';
+                        }
+
+                        var datalist = document.createElement("datalist");
+                        datalist.id = 'realaccountoptions';
+                        datalist.innerHTML = options;
+                        var textBox = document.getElementById("searchInput");
+                        var check = document.getElementById('realaccountoptions');
+                        if (typeof (check) != 'undefined' && check != null) {
+                            check.remove();
+                        }
+                        textBox.appendChild(datalist);
+                        textBox.setAttribute('list', 'realaccountoptions');
+                        console.log(datalist);
+                    });
+                }
+            )
+            .catch(function (err) {
+                console.log('Fetch Error :-S', err);
+            });
+    }
+
+    function onInput(textBox) {
+        var val = document.getElementById("searchInput").value;
+        var check = document.getElementById('realaccountoptions');
+        if (typeof (check) != 'undefined' && check != null) {
+            var opts = document.getElementById('realaccountoptions').childNodes;
+            for (var i = 0; i < opts.length; i++) {
+                if (opts[i].value === val) {
+                    var form = document.getElementById("searchForm");
+                    form.submit();
+                }
+            }
+        }
+        handleSearchQuery(textBox);
+    }
+
+</script>
+
+@{
+    if (Model?.RealPropertyAccounts is not null && Model.RealPropertyAccounts.Any())
+    {
+        <section class="hero is-success is-small">
+            <div class="hero-body container">
+                <div class="has-text-centered">
+                    <p class="title is-1">Real Property</p>
+                    <p class="subtitle">A service of King County</p>
+                    <form asp-page="./RealProperty" method="get" id="searchForm">
+                        <div class="field is-grouped">
+                            <p class="control is-expanded">
+                                <input id="searchInput" class="input is-large" name="accountNumber" type="text" placeholder="Enter an account number" value="@Model?.AccountNumber" onchange="handleSearchQuery(this)" autocomplete="off" oninput="onInput(this)">
+                            </p>
+                            @*<p class="control">
+                                    <input type="submit" id="submitSearch" value="Search" class="button is-large is-success is-inverted is-focused" />
+                                </p>*@
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="hero is-link is-halfheight">
+            <div class="hero-body container">
+                <div class="has-text-centered">
+                    <p class="title is-1">Real Property</p>
+                    <p class="subtitle">A service of King County</p>
+                    <form asp-page="./RealProperty" method="get" id="searchForm">
+                        <div class="field is-grouped">
+                            <p class="control is-expanded">
+                                <input id="searchInput" class="input is-large" name="accountNumber" type="text" placeholder="Enter an account number" value="@Model?.AccountNumber" onchange="handleSearchQuery(this)" autocomplete="off" oninput="onInput(this)">
+                            </p>
+                            @*<p class="control">
+                                    <input type="submit" id="submitSearch" value="Search" class="button is-large is-link is-inverted is-focused" />
+                                </p>*@
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    }
+}
+
+@{
+    if (Model.RealPropertyAccounts is not null && Model.RealPropertyAccounts.Any())
+    {
+        <section class="section container pt-3">
+            <nav class="breadcrumb is-centered has-arrow-separator mb-3" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="#">King County</a></li>
+                    <li><a href="/">Real Property</a></li>
+                    <li class="is-active"><a href="#" aria-current="page">@Model?.RealPropertyAccounts.Count() Results Found</a></li>
+                </ul>
+            </nav>
+            @foreach (var account in Model?.RealPropertyAccounts)
+            {
+                <p class="subtitle is-1">Tax Account</p>
+                <div class="tile is-ancestor">
+                    <div class="tile is-vertical is-8">
+                        <div class="tile">
+                            <div class="tile is-parent is-vertical">
+                                <article class="tile is-child notification is-primary box">
+                                    <p class="subtitle">Account Number</p>
+                                    <p class="title is-1">@account.AcctNbr</p>
+                                    <p class="subtitle">Parcel Number</p>
+                                    <p class="title is-1">@account.ParcelNumber</p>
+                                    @*<p class="subtitle">Major</p>
+                                        <p class="title">@account.Major</p>
+                                        <p class="subtitle">Minor</p>
+                                        <p class="title">@account.Minor</p>*@
+                                </article>
+                                <article class="tile is-child notification is-warning box">
+                                    @if (Model?.ResidentialBuildings is not null && Model.ResidentialBuildings.Any())
+                                    {
+                                        foreach (var residential in Model.ResidentialBuildings)
+                                        {
+                                            var totalSquareFootage = residential.SqFt1stFloor + residential.SqFt2ndFloor + residential.SqFtDeck + residential.SqFtEnclosedPorch + residential.SqFtFinBasement + residential.SqFtGarageAttached + residential.SqFtGarageBasement + residential.SqFtHalfFloor + residential.SqFtOpenPorch + residential.SqFtTotBasement + residential.SqFtTotLiving + residential.SqFtUnfinFull + residential.SqFtUnfinHalf + residential.SqFtUpperFloor;
+                                            var totalBathrooms = residential.Bath3qtrCount + residential.BathFullCount + residential.BathHalfCount;
+                                            <p class="subtitle">Year Built</p>
+                                            <p class="title">@residential.YrBuilt</p>
+                                            <p class="subtitle">Year Renovated</p>
+                                            <p class="title">@residential.YrRenovated</p>
+                                            <p class="subtitle">Total Square Footage</p>
+                                            <p class="title">@totalSquareFootage</p>
+                                            <p class="subtitle">Number of Bedrooms</p>
+                                            <p class="title">@residential.Bedrooms</p>
+                                            <p class="subtitle">Number of Baths</p>
+                                            <p class="title">@totalBathrooms</p>
+                                            <p class="subtitle">Grade</p>
+                                            <p class="title">@residential.BldgGrade</p>
+                                            <p class="subtitle">Condition</p>
+                                            <p class="title">@residential.Condition</p>
+                                            <p class="subtitle">Views</p>
+                                            <p class="title">@residential.ViewUtilization</p>
+                                        }
+                                    }
+                                    <p class="title">Mailing Address</p>
+                                    <p>@account.AttnLine</p>
+                                    <p>@account.AddrLine</p>
+                                    <p>@account.CityState</p>
+                                    <p>@account.ZipCode</p>
+                                </article>
+                            </div>
+                            <div class="tile is-parent">
+                                <article class="tile is-child notification is-info box">
+                                    <div class="content">
+                                        <p class="subtitle">Tax Year</p>
+                                        <p class="title is-1">@account.BillYr</p>
+                                        <p class="subtitle">Appraised Land Value</p>
+                                        @{
+                                            var checkAlv = int.TryParse(account.ApprLandVal, out var alv);
+                                            if (checkAlv)
+                                            {
+                                                <p class="title">@alv.ToString("C2")</p>
+                                            }
+                                            else
+                                            {
+                                                <p class="title">@account.ApprLandVal</p>
+                                            }
+                                        }
+                                        <p class="subtitle">Appraised Improvements Value</p>
+                                        @{
+                                            var checkAiv = int.TryParse(account.ApprImpsVal, out var aiv);
+                                            if (checkAiv)
+                                            {
+                                                <p class="title">@aiv.ToString("C2")</p>
+                                            }
+                                            else
+                                            {
+                                                <p class="title">@account.ApprImpsVal</p>
+                                            }
+                                        }
+                                        <p class="subtitle">Taxable Land Value</p>
+                                        @{
+                                            var checkTlv = int.TryParse(account.TaxableLandVal, out var tlv);
+                                            if (checkTlv)
+                                            {
+                                                <p class="title">@tlv.ToString("C2")</p>
+                                            }
+                                            else
+                                            {
+                                                <p class="title">@account.TaxableLandVal</p>
+                                            }
+                                        }
+                                        <p class="subtitle">Taxable Improvements Value</p>
+                                        @{
+                                            var checkTiv = int.TryParse(account.TaxableImpsVal, out var tiv);
+                                            if (checkTiv)
+                                            {
+                                                <p class="title">@tiv.ToString("C2")</p>
+                                            }
+                                            else
+                                            {
+                                                <p class="title">@account.TaxableImpsVal</p>
+                                            }
+                                        }
+                                        <p class="subtitle">Total Taxable Value</p>
+                                        @{
+                                            if (checkTiv && checkTlv)
+                                            {
+                                                var total = tiv + tlv;
+                                                <p class="title">@total.ToString("C2")</p>
+                                            }
+                                            else
+                                            {
+                                                <p class="title"></p>
+                                            }
+                                        }
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tile is-parent">
+                        <article class="tile is-child notification is-danger box">
+                            <p class="subtitle">Levy Code</p>
+                            <p class="title">@account.LevyCode</p>
+                            @{
+                                var levy = Model?.Levies.Where(x => x.LevyCode == account.LevyCode).FirstOrDefault();
+
+                                if (levy is not null)
+                                {
+                                    <p class="subtitle">Levy District</p>
+                                    <p class="title">@levy.DistrictName (@levy.DistrictAbbrev)</p>
+                                }
+                            }
+                            @if (!string.IsNullOrWhiteSpace(account.NewConstructionFlag) && account.NewConstructionFlag != "N")
+                            {
+                                <p class="subtitle">New Construction</p>
+                                <p class="title">Yes</p>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(account.TaxStat))
+                            {
+                                <p class="subtitle">Taxable Status</p>
+                                <p class="title">@account.TaxStat</p>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(account.TaxValReason))
+                            {
+                                <p class="subtitle">Tax Valuation Reason</p>
+                                <p class="title">@account.TaxValReason</p>
+                            }
+                        </article>
+                    </div>
+                </div>
+                <div class="tile is-ancestor">
+                    <div class="tile is-parent">
+                        <article class="tile is-child notification is-dark">
+                            <p class="subtitle">Legal Description</p>
+                            <p class="title">@account.LegalDescription</p>
+                        </article>
+                    </div>
+                </div>
+            }
+        </section>
+        @if (Model?.Sales is not null)
+        {
+            <section class="section container pt-3">
+                <p class="subtitle is-1">Sales</p>
+                <div class="tile is-ancestor">
+                    <div class="tile is-parent">
+                        <article class="tile is-child">
+
+                            <div class="columns is-multiline">
+                                @foreach (var sale in Model?.Sales.OrderByDescending(x => x.DocumentDate))
+                                {
+                                    <div class="column is-one-third">
+                                        <div class="card">
+                                            <div class="card-content">
+                                                <div class="content">
+                                                    <p class="subtitle">Document Date</p>
+                                                    <p class="title">
+                                                        @sale.DocumentDate.ToShortDateString()
+                                                    </p>
+                                                    <p class="subtitle">Excise Number</p>
+                                                    <p class="title">
+                                                        @sale.ExciseTaxNbr
+                                                    </p>
+                                                    <p class="subtitle">Sale Reason</p>
+                                                    <p class="title">
+                                                        @sale.SaleReason
+                                                    </p>
+                                                    <p class="subtitle">Sale Price</p>
+                                                    <p class="title">
+                                                        @sale.SalePrice.ToString("C2")
+                                                    </p>
+                                                    <p class="subtitle">Buyer Name</p>
+                                                    <p class="title">
+                                                        @sale.BuyerName
+                                                    </p>
+                                                    <p class="subtitle">Seller Name</p>
+
+                                                    <p class="title">
+                                                        @sale.SellerName
+                                                    </p>
+                                                    <p class="subtitle">Sale Instrument</p>
+
+                                                    <p class="title">
+                                                        @sale.SaleInstrument
+                                                    </p>
+                                                    <p class="subtitle">Recording Number</p>
+
+                                                    <p class="title">
+                                                        @sale.RecordingNbr
+                                                    </p>
+
+                                                    @if (!string.IsNullOrWhiteSpace(sale.Volume))
+                                                    {
+                                                        <p class="subtitle">Volume and Page Number(s)</p>
+                                                        <p class="title">
+                                                            @sale.Volume @sale.Page
+                                                        </p>
+                                                    }
+
+                                                    <p class="subtitle">Warnings</p>
+
+                                                    <p class="title">
+                                                        @sale.SaleWarning
+                                                    </p>
+
+                                                    @if (!string.IsNullOrWhiteSpace(sale.PlatNbr))
+                                                    {
+                                                        <p class="subtitle">Plat Information</p>
+                                                        <p class="title">
+                                                            @sale.PlatNbr @sale.PlatBlock @sale.PlatLot @sale.PlatType
+                                                        </p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+        }
+
+        @if (Model?.Parcels is not null && Model.Parcels.Any())
+        {
+            <section class="section container pt-3">
+                <p class="subtitle is-1">Property Parcel</p>
+                @foreach (var parcel in Model.Parcels)
+                {
+                    <div class="tile is-ancestor">
+                        <div class="tile is-vertical is-8">
+                            <div class="tile">
+                                <div class="tile is-parent is-vertical">
+                                    <article class="tile is-child notification is-primary box">
+                                        <p class="subtitle">Parcel Number</p>
+                                        <p class="title">@parcel.ParcelNumber</p>
+                                        <p class="subtitle">Section Township Range</p>
+                                        <p class="title">@parcel.Section @parcel.Township @parcel.Range</p>
+                                        @if (!string.IsNullOrWhiteSpace(parcel.PlatName))
+                                        {
+                                            <p class="subtitle">Plat Name</p>
+                                            <p class="title">@parcel.PlatName</p>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(parcel.PlatLot))
+                                        {
+                                            <p class="subtitle">Plat Lot</p>
+                                            <p class="title">@parcel.PlatLot</p>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(parcel.PlatBlock))
+                                        {
+                                            <p class="subtitle">Plat Block</p>
+                                            <p class="title">@parcel.PlatBlock</p>
+                                        }
+                                    </article>
+                                    <article class="tile is-child notification is-warning box">
+                                        @{
+                                            var views = 0;
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.MtRainier))
+                                            {
+                                                views++;
+                                                <p class="subtitle">Mount Rainier (Tahoma) View</p>
+                                                <p class="title">@parcel.MtRainier</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.Olympics))
+                                            {
+                                                views++;
+                                                <p class="subtitle">Olympics View</p>
+                                                <p class="title">@parcel.Olympics</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.Cascades))
+                                            {
+                                                views++;
+                                                <p class="subtitle">Cascades View</p>
+                                                <p class="title">@parcel.Cascades</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.Territorial))
+                                            {
+                                                views++;
+                                                <p class="subtitle">Territorial View</p>
+                                                <p class="title">@parcel.Territorial</p>
+                                            }
+
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.SeattleSkyline))
+                                            {
+                                                views++;
+                                                <p class="subtitle">Seattle Skyline View</p>
+                                                <p class="title">@parcel.SeattleSkyline</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.PugetSound))
+                                            {
+                                                views++;
+                                                <p class="subtitle">Puget Sound View</p>
+                                                <p class="title">@parcel.PugetSound</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.LakeWashington))
+                                            {
+                                                views++;
+                                                <p class="subtitle">Lake Washington View</p>
+                                                <p class="title">@parcel.LakeWashington</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.LakeSammamish))
+                                            {
+                                                views++;
+                                                <p class="subtitle">Lake Sammamish View</p>
+                                                <p class="title">@parcel.LakeSammamish</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.SmallLakeRiverCreek))
+                                            {
+                                                views++;
+                                                <p class="subtitle">Small Lake, River, or Creek View</p>
+                                                <p class="title">@parcel.SmallLakeRiverCreek</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.OtherView))
+                                            {
+                                                views++;
+                                                <p class="subtitle">Other View</p>
+                                                <p class="title">@parcel.OtherView</p>
+                                            }
+
+                                            if (views == 0)
+                                            {
+                                                <p class="subtitle">Views and Ratings</p>
+                                                <p class="title">None</p>
+                                            }
+
+                                            var waterfront = 0;
+                                            // 2425049244
+                                            if (!string.IsNullOrWhiteSpace(parcel.WfntLocation))
+                                            {
+                                                waterfront++;
+                                                <p class="subtitle">Waterfront Location</p>
+                                                <p class="title">@parcel.WfntLocation</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.WfntFootage) && parcel.WfntFootage != "0")
+                                            {
+                                                waterfront++;
+                                                <p class="subtitle">Waterfront Footage</p>
+                                                <p class="title">@parcel.WfntFootage Square Feet</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.WfntBank))
+                                            {
+                                                waterfront++;
+                                                <p class="subtitle">Waterfront Bank</p>
+                                                <p class="title">@parcel.WfntBank</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.WfntPoorQuality) && parcel.WfntPoorQuality != "No")
+                                            {
+                                                waterfront++;
+                                                <p class="subtitle">Waterfront Poor Quality</p>
+                                                <p class="title">@parcel.WfntPoorQuality</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.WfntRestrictedAccess))
+                                            {
+                                                waterfront++;
+                                                <p class="subtitle">Waterfront Restricted Access</p>
+                                                <p class="title">@parcel.WfntRestrictedAccess</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.WfntAccessRights) && parcel.WfntAccessRights != "N")
+                                            {
+                                                waterfront++;
+                                                <p class="subtitle">Waterfront Access Rights</p>
+                                                <p class="title">Yes</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.WfntProximityInfluence) && parcel.WfntProximityInfluence != "N")
+                                            {
+                                                waterfront++;
+                                                <p class="subtitle">Waterfront Proximity Influence</p>
+                                                <p class="title">Yes</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.TidelandShoreland))
+                                            {
+                                                waterfront++;
+                                                <p class="subtitle">Waterfront Tideland or Shoreland</p>
+                                                <p class="title">@parcel.TidelandShoreland</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.LotDepthFactor) && parcel.LotDepthFactor != "0")
+                                            {
+                                                waterfront++;
+                                                <p class="subtitle">Lot Depth Factor</p>
+                                                <p class="title">@parcel.LotDepthFactor</p>
+                                            }
+
+                                            if (waterfront == 0)
+                                            {
+                                                <p class="subtitle">Waterfront</p>
+                                                <p class="title">None</p>
+                                            }
+
+                                            var nuisances = 0;
+                                            if (!string.IsNullOrWhiteSpace(parcel.TrafficNoise) && parcel.TrafficNoise != "0")
+                                            {
+                                                nuisances++;
+                                                <p class="subtitle">Traffic Noise</p>
+                                                <p class="title">@parcel.TrafficNoise</p>
+                                            }
+
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.AirportNoise) && parcel.AirportNoise != "0")
+                                            {
+                                                nuisances++;
+                                                <p class="subtitle">Airport Noise</p>
+                                                <p class="title">@parcel.AirportNoise</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.PowerLines) && parcel.PowerLines != "N")
+                                            {
+                                                nuisances++;
+                                                <p class="subtitle">Power Lines</p>
+                                                <p class="title">Yes</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.OtherNuisances) && parcel.OtherNuisances != "N")
+                                            {
+                                                nuisances++;
+                                                <p class="subtitle">Other Nuisances</p>
+                                                <p class="title">Yes</p>
+                                            }
+
+
+                                            if (nuisances == 0)
+                                            {
+                                                <p class="subtitle">Nuisances</p>
+                                                <p class="title">None</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.NbrBldgSites) && parcel.NbrBldgSites != "0")
+                                            {
+                                                <p class="subtitle">Number of Building Sites</p>
+                                                <p class="title">@parcel.NbrBldgSites</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.Contamination) && parcel.Contamination != "0")
+                                            {
+                                                <p class="subtitle">Contamination</p>
+                                                <p class="title">Yes</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.DNRLease) && parcel.DNRLease != "N")
+                                            {
+                                                <p class="subtitle">DNR Lease</p>
+                                                <p class="title">Yes</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.AdjacentGolfFairway) && parcel.AdjacentGolfFairway != "N")
+                                            {
+                                                <p class="subtitle">Adjacent Golf Fairway</p>
+                                                <p class="title">Yes</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.AdjacentGreenbelt) && parcel.AdjacentGreenbelt != "N")
+                                            {
+                                                <p class="subtitle">Adjacent Greenbelt</p>
+                                                <p class="title">@parcel.AdjacentGreenbelt</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.HistoricSite) && parcel.HistoricSite != "0")
+                                            {
+                                                <p class="subtitle">Historic Site</p>
+                                                <p class="title">@parcel.HistoricSite</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.CurrentUseDesignation) && parcel.CurrentUseDesignation != "0")
+                                            {
+                                                <p class="subtitle">Current Use Designation</p>
+                                                <p class="title">@parcel.CurrentUseDesignation</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.NativeGrowthProtEsmt) && parcel.NativeGrowthProtEsmt != "N")
+                                            {
+                                                <p class="subtitle">Native Growth Protection Easement</p>
+                                                <p class="title">@parcel.NativeGrowthProtEsmt</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.Easements) && parcel.Easements != "N")
+                                            {
+                                                <p class="subtitle">Easements</p>
+                                                <p class="title">@parcel.Easements</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.DeedRestrictions) && parcel.DeedRestrictions != "N")
+                                            {
+                                                <p class="subtitle">Deed Restrictions</p>
+                                                <p class="title">@parcel.DeedRestrictions</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.DevelopmentRightsPurch) && parcel.DevelopmentRightsPurch != "N")
+                                            {
+                                                <p class="subtitle">Development Rights Purchased</p>
+                                                <p class="title">@parcel.DevelopmentRightsPurch</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.CoalMineHazard) && parcel.CoalMineHazard != "N")
+                                            {
+                                                <p class="subtitle">Coal Mine Hazard</p>
+                                                <p class="title">@parcel.CoalMineHazard</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.CriticalDrainage) && parcel.CriticalDrainage != "N")
+                                            {
+                                                <p class="subtitle">Critical Drainage</p>
+                                                <p class="title">@parcel.CriticalDrainage</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.ErosionHazard) && parcel.ErosionHazard != "N")
+                                            {
+                                                <p class="subtitle">Erosion Hazard</p>
+                                                <p class="title">@parcel.ErosionHazard</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.LandfillBuffer) && parcel.LandfillBuffer != "N")
+                                            {
+                                                <p class="subtitle">Landfill Buffer</p>
+                                                <p class="title">@parcel.LandfillBuffer</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.HundredYrFloodPlain) && parcel.HundredYrFloodPlain != "N")
+                                            {
+                                                <p class="subtitle">Hundred Year Flood Plain</p>
+                                                <p class="title">@parcel.HundredYrFloodPlain</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.SeismicHazard) && parcel.SeismicHazard != "N")
+                                            {
+                                                <p class="subtitle">Seismic Hazard</p>
+                                                <p class="title">@parcel.SeismicHazard</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.LandslideHazard) && parcel.LandslideHazard != "N")
+                                            {
+
+                                                <p class="subtitle">Landslide Hazard</p>
+                                                <p class="title">@parcel.LandslideHazard</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.SteepSlopeHazard) && parcel.SteepSlopeHazard != "N")
+                                            {
+                                                <p class="subtitle">Steep Slope Hazard</p>
+                                                <p class="title">@parcel.SteepSlopeHazard</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.Stream) && parcel.Stream != "N")
+                                            {
+                                                <p class="subtitle">Stream</p>
+                                                <p class="title">@parcel.Stream</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.Wetland) && parcel.Wetland != "N")
+                                            {
+                                                <p class="subtitle">Wetland</p>
+                                                <p class="title">@parcel.Wetland</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.Wetland) && parcel.Wetland != "N")
+                                            {
+                                                <p class="subtitle">Species Of Concern</p>
+                                                <p class="title">@parcel.SpeciesOfConcern</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.SensitiveAreaTract) && parcel.SensitiveAreaTract != "N")
+                                            {
+                                                <p class="subtitle">Sensitive Area Tract</p>
+                                                <p class="title">@parcel.SensitiveAreaTract</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.WaterProblems) && parcel.WaterProblems != "N")
+                                            {
+                                                <p class="subtitle">Water Problems</p>
+                                                <p class="title">@parcel.WaterProblems</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.TranspConcurrency) && parcel.TranspConcurrency != "N")
+                                            {
+                                                <p class="subtitle">Transportation Concurrency</p>
+                                                <p class="title">@parcel.TranspConcurrency</p>
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(parcel.OtherProblems) && parcel.OtherProblems != "N")
+                                            {
+                                                <p class="subtitle">Other Problems</p>
+                                                <p class="title">@parcel.OtherProblems</p>
+                                            }
+
+
+                                        }
+                                    </article>
+                                </div>
+                                <div class="tile is-parent">
+                                    <article class="tile is-child notification is-info box">
+                                        <p class="subtitle">Property Type</p>
+                                        <p class="title">@parcel.PropType</p>
+                                        <p class="subtitle">Area</p>
+                                        <p class="title">@parcel.Area</p>
+                                        <p class="subtitle">SubArea</p>
+                                        <p class="title">@parcel.SubArea</p>
+                                        @if (!string.IsNullOrWhiteSpace(parcel.SpecArea))
+                                        {
+                                            <p class="subtitle">SpecArea</p>
+                                            <p class="title">@parcel.SpecArea</p>
+                                            <p class="subtitle">SpecSubArea</p>
+                                            <p class="title">@parcel.SpecSubArea</p>
+                                        }
+                                        <p class="subtitle">District Name</p>
+                                        <p class="title">@parcel.DistrictName</p>
+                                        <p class="subtitle">Levy Code</p>
+                                        <p class="title">@parcel.LevyCode</p>
+                                        <p class="subtitle">Zoning</p>
+                                        <p class="title">@parcel.CurrentZoning</p>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tile is-parent">
+                            <article class="tile is-child notification is-danger box">
+                                <div class="content">
+                                    @if (!string.IsNullOrWhiteSpace(parcel.HBUAsIfVacant))
+                                    {
+                                        <p class="subtitle">HBU As If Vacant</p>
+                                        <p class="title">@parcel.HBUAsIfVacant</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(parcel.HBUAsImproved))
+                                    {
+                                        <p class="subtitle">HBU As Improved</p>
+                                        <p class="title">@parcel.HBUAsImproved</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(parcel.PresentUse))
+                                    {
+                                        <p class="subtitle">Present Use</p>
+                                        <p class="title">@parcel.PresentUse</p>
+                                    }
+
+                                    <p class="subtitle">Lot Square Footage</p>
+                                    <p class="title">@parcel.SqFtLot</p>
+
+                                    @if (!string.IsNullOrWhiteSpace(parcel.WaterSystem))
+                                    {
+                                        <p class="subtitle">Water System</p>
+                                        <p class="title">@parcel.WaterSystem</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(parcel.SewerSystem))
+                                    {
+                                        <p class="subtitle">Sewer System</p>
+                                        <p class="title">@parcel.SewerSystem</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(parcel.Access))
+                                    {
+                                        <p class="subtitle">Access</p>
+                                        <p class="title">@parcel.Access</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(parcel.Topography) && parcel.Topography != "0")
+                                    {
+                                        <p class="subtitle">Topography</p>
+                                        <p class="title">Yes</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(parcel.StreetSurface))
+                                    {
+                                        <p class="subtitle">Street Surface</p>
+                                        <p class="title">@parcel.StreetSurface</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(parcel.RestrictiveSzShape) && parcel.RestrictiveSzShape != "0")
+                                    {
+                                        <p class="subtitle">Restrictive Shape</p>
+                                        <p class="title">Yes</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(parcel.InadequateParking))
+                                    {
+                                        <p class="subtitle">Inadequate Parking</p>
+                                        <p class="title">@parcel.InadequateParking</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(parcel.PcntUnusable) && parcel.PcntUnusable != "0")
+                                    {
+                                        <p class="subtitle">Percent Unusable</p>
+                                        <p class="title">@parcel.PcntUnusable</p>
+                                    }
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                }
+            </section>
+        }
+
+        @if (Model?.TaxYears is not null)
+        {
+            <section class="section container pt-3">
+                <p class="subtitle is-1">Tax Years</p>
+                <div class="tile is-ancestor">
+                    <div class="tile is-parent">
+                        <a href="/RealPropertyTaxYears?accountNumber=@Model?.AccountNumber">
+                            <article class="tile is-child box">
+                                <div class="table-container">
+                                    <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    Year Valued
+                                                </th>
+                                                <th>
+                                                    Update Reason
+                                                </th>
+                                                <th>
+                                                    Tax Year
+                                                </th>
+                                                <th>
+                                                    Appraised Land Value
+                                                </th>
+                                                <th>
+                                                    Appraised Improvements Value
+                                                </th>
+                                                <th>
+                                                    Total Appraised Value
+                                                </th>
+                                                <th>
+                                                    Appraised Improvements Increase
+                                                </th>
+                                                <th>
+                                                    Taxable Land Value
+                                                </th>
+                                                <th>
+                                                    Taxable Improvements Value
+                                                </th>
+                                                <th class="is-selected">
+                                                    Total Taxable Value
+                                                </th>
+                                                <th>
+                                                    Levy Code
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var year in Model?.TaxYears)
+                                                {
+                                                    var yearAssessed = year.TaxYr + 1;
+                                                    var totalAppraised = year?.ApprImpsVal + year?.ApprLandVal;
+                                                    var totalTaxable = year?.LandVal + year?.ImpsVal;
+                                                    if (year.TaxYr == DateTime.Now.Year)
+                                                    {
+                                                        <tr class="is-selected">
+                                                            <td>
+                                                                @yearAssessed
+                                                            </td>
+                                                            <td>
+                                                                @year.Reason
+                                                            </td>
+                                                            <td>
+                                                                @year.TaxYr
+                                                            </td>
+                                                            <td>
+                                                                @year.ApprLandVal.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @year.ApprImpsVal.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @totalAppraised?.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @year.ApprImpIncr.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @year.LandVal.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @year.ImpsVal.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @totalTaxable?.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @year.LevyCode
+                                                            </td>
+                                                        </tr>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                @yearAssessed
+                                                            </td>
+                                                            <td>
+                                                                @year.Reason
+                                                            </td>
+                                                            <td>
+                                                                @year.TaxYr
+                                                            </td>
+                                                            <td>
+                                                                @year.ApprLandVal.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @year.ApprImpsVal.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @totalAppraised?.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @year.ApprImpIncr.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @year.LandVal.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @year.ImpsVal.ToString("C2")
+                                                            </td>
+                                                            <td class="is-selected">
+                                                                @totalTaxable?.ToString("C2")
+                                                            </td>
+                                                            <td>
+                                                                @year.LevyCode
+                                                            </td>
+                                                        </tr>
+
+                                                    }
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </article>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        }
+    }
+}

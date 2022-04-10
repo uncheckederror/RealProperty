@@ -363,3 +363,7 @@ MigrationBackup/
 FodyWeavers.xsd
 *.db
 *.csv
+
+*.db
+*.db-wal
+*.db-sh

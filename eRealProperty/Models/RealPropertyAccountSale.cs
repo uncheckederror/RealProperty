@@ -1,12 +1,15 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 
+using Flurl.Http;
+
 using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -42,9 +45,31 @@ namespace eRealProperty.Models
         public string SaleWarning { get; set; }
         public DateTime IngestedOn { get; set; }
 
-        public static async Task IngestAsync(DbContextOptions<eRealPropertyContext> contextOptions)
+        public static async Task<bool> IngestAsync(eRealPropertyContext context, string zipUrl, string fileName)
         {
-            var pathToCSV = Path.Combine(AppContext.BaseDirectory, "SourceData\\EXTR_RPSale.csv");
+            if (string.IsNullOrWhiteSpace(zipUrl) || string.IsNullOrWhiteSpace(fileName))
+            {
+                return false;
+            }
+
+            var pathtoFile = await zipUrl.DownloadFileAsync(AppContext.BaseDirectory);
+            var pathToCSV = Path.Combine(AppContext.BaseDirectory, fileName);
+
+            var fileTypes = new string[] { ".txt", ".csv" };
+            // If a file with the same name already exists it will break the downloading process, so we need to make sure they are deleted.
+            foreach (var type in fileTypes)
+            {
+                var filePath = Path.Combine(AppContext.BaseDirectory, Path.GetFileNameWithoutExtension(pathtoFile) + type);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+
+            if (!File.Exists(pathToCSV))
+            {
+                ZipFile.ExtractToDirectory(pathtoFile, AppContext.BaseDirectory);
+            }
 
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
@@ -55,64 +80,188 @@ namespace eRealProperty.Models
             using (var reader = new StreamReader(pathToCSV))
             using (var csv = new CsvReader(reader, config))
             {
+                var transaction = context.Database.BeginTransaction();
                 csv.Read();
                 csv.ReadHeader();
 
-                var records = new List<RealPropertyAccountSale>();
+                var record = new RealPropertyAccountSale();
 
-                while (csv.Read())
+                while (await csv.ReadAsync())
                 {
-                    var record = new RealPropertyAccountSale
-                    {
-                        Id = Guid.NewGuid(),
-                        ExciseTaxNbr = csv.GetField<int>("ExciseTaxNbr"),
-                        DocumentDate = csv.GetField<DateTime>("DocumentDate"),
-                        SalePrice = csv.GetField<long>("SalePrice"),
-                        RecordingNbr = csv.GetField<string>("RecordingNbr"),
-                        Volume = csv.GetField<string>("Volume"),
-                        Page = csv.GetField<string>("Page"),
-                        PlatNbr = csv.GetField<string>("PlatNbr"),
-                        PlatType = csv.GetField<string>("PlatType"),
-                        PlatLot = csv.GetField<string>("PlatLot"),
-                        Major = csv.GetField<string>("Major"),
-                        Minor = csv.GetField<string>("Minor"),
-                        PlatBlock = csv.GetField<string>("PlatBlock"),
-                        SellerName = csv.GetField<string>("SellerName"),
-                        BuyerName = csv.GetField<string>("BuyerName"),
-                        PropertyType = csv.GetField<string>("PropertyType"),
-                        PrincipalUse = csv.GetField<string>("PrincipalUse"),
-                        SaleInstrument = csv.GetField<string>("SaleInstrument"),
-                        AFForestLand = csv.GetField<char>("AFForestLand"),
-                        AFCurrentUseLand = csv.GetField<char>("AFCurrentUseLand"),
-                        AFNonProfitUse = csv.GetField<char>("AFNonProfitUse"),
-                        AFHistoricProperty = csv.GetField<char>("AFHistoricProperty"),
-                        SaleReason = csv.GetField<string>("SaleReason"),
-                        PropertyClass = csv.GetField<string>("PropertyClass"),
-                        SaleWarning = csv.GetField<string>("SaleWarning"),
-                        IngestedOn = DateTime.Now
-                    };
+                    record.Id = Guid.NewGuid();
+                    record.ExciseTaxNbr = csv.GetField<int>("ExciseTaxNbr");
+                    record.DocumentDate = csv.GetField<DateTime>("DocumentDate");
+                    record.SalePrice = csv.GetField<long>("SalePrice");
+                    record.RecordingNbr = csv.GetField<string>("RecordingNbr");
+                    record.Volume = csv.GetField<string>("Volume");
+                    record.Page = csv.GetField<string>("Page");
+                    record.PlatNbr = csv.GetField<string>("PlatNbr");
+                    record.PlatType = csv.GetField<string>("PlatType");
+                    record.PlatLot = csv.GetField<string>("PlatLot");
+                    record.Major = csv.GetField<string>("Major");
+                    record.Minor = csv.GetField<string>("Minor");
+                    record.PlatBlock = csv.GetField<string>("PlatBlock");
+                    record.SellerName = csv.GetField<string>("SellerName");
+                    record.BuyerName = csv.GetField<string>("BuyerName");
+                    record.PropertyType = csv.GetField<string>("PropertyType");
+                    record.PrincipalUse = csv.GetField<string>("PrincipalUse");
+                    record.SaleInstrument = csv.GetField<string>("SaleInstrument");
+                    record.AFForestLand = csv.GetField<char>("AFForestLand");
+                    record.AFCurrentUseLand = csv.GetField<char>("AFCurrentUseLand");
+                    record.AFNonProfitUse = csv.GetField<char>("AFNonProfitUse");
+                    record.AFHistoricProperty = csv.GetField<char>("AFHistoricProperty");
+                    record.SaleReason = csv.GetField<string>("SaleReason");
+                    record.PropertyClass = csv.GetField<string>("PropertyClass");
+                    record.SaleWarning = csv.GetField<string>("SaleWarning");
+                    record.IngestedOn = DateTime.Now;
 
                     record.TranslateFieldsUsingLookupsToText();
-                    records.Add(record);
 
-                    if (records.Count == Environment.ProcessorCount * 10000)
-                    {
-                        using var context = new eRealPropertyContext(contextOptions);
-                        context.ChangeTracker.AutoDetectChangesEnabled = false;
-                        context.AddRange(records);
-                        await context.SaveChangesAsync();
-                        records = new List<RealPropertyAccountSale>();
-                    }
-                }
+                    var command = context.Database.GetDbConnection().CreateCommand();
+                    command.CommandText =
+                        $"insert into Sales (Id, ExciseTaxNbr, DocumentDate, SalePrice, RecordingNbr, Volume, Page, PlatNbr, PlatType, PlatLot, Major, Minor, ParcelNumber, PlatBlock, SellerName, BuyerName, PropertyType, PrincipalUse, SaleInstrument, AFForestLand, AFCurrentUseLand, AFNonProfitUse, AFHistoricProperty, SaleReason, PropertyClass, SaleWarning, IngestedOn) " +
+                        $"values ($Id, $ExciseTaxNbr, $DocumentDate, $SalePrice, $RecordingNbr, $Volume, $Page, $PlatNbr, $PlatType, $PlatLot, $Major, $Minor, $ParcelNumber, $PlatBlock, $SellerName, $BuyerName, $PropertyType, $PrincipalUse, $SaleInstrument, $AFForestLand, $AFCurrentUseLand, $AFNonProfitUse, $AFHistoricProperty, $SaleReason, $PropertyClass, $SaleWarning, $IngestedOn);";
 
-                if (records.Count > 0)
-                {
-                    using var context = new eRealPropertyContext(contextOptions);
-                    context.ChangeTracker.AutoDetectChangesEnabled = false;
-                    context.AddRange(records);
-                    await context.SaveChangesAsync();
+                    var Id = command.CreateParameter();
+                    Id.ParameterName = "$Id";
+                    command.Parameters.Add(Id);
+                    Id.Value = record.Id;
+
+                    var ExciseTaxNbr = command.CreateParameter();
+                    ExciseTaxNbr.ParameterName = "$ExciseTaxNbr";
+                    command.Parameters.Add(ExciseTaxNbr);
+                    ExciseTaxNbr.Value = record.ExciseTaxNbr;
+
+                    var DocumentDate = command.CreateParameter();
+                    DocumentDate.ParameterName = "$DocumentDate";
+                    command.Parameters.Add(DocumentDate);
+                    DocumentDate.Value = record.DocumentDate;
+
+                    var SalePrice = command.CreateParameter();
+                    SalePrice.ParameterName = "$SalePrice";
+                    command.Parameters.Add(SalePrice);
+                    SalePrice.Value = record.SalePrice;
+
+                    var RecordingNbr = command.CreateParameter();
+                    RecordingNbr.ParameterName = "$RecordingNbr";
+                    command.Parameters.Add(RecordingNbr);
+                    RecordingNbr.Value = string.IsNullOrWhiteSpace(record?.RecordingNbr) ? DBNull.Value : record.RecordingNbr;
+
+                    var Volume = command.CreateParameter();
+                    Volume.ParameterName = "$Volume";
+                    command.Parameters.Add(Volume);
+                    Volume.Value = string.IsNullOrWhiteSpace(record?.Volume) ? DBNull.Value : record.Volume;
+
+                    var Page = command.CreateParameter();
+                    Page.ParameterName = "$Page";
+                    command.Parameters.Add(Page);
+                    Page.Value = string.IsNullOrWhiteSpace(record?.Page) ? DBNull.Value : record.Page;
+
+                    var PlatNbr = command.CreateParameter();
+                    PlatNbr.ParameterName = "$PlatNbr";
+                    command.Parameters.Add(PlatNbr);
+                    PlatNbr.Value = string.IsNullOrWhiteSpace(record?.PlatNbr) ? DBNull.Value : record.PlatNbr;
+
+                    var PlatType = command.CreateParameter();
+                    PlatType.ParameterName = "$PlatType";
+                    command.Parameters.Add(PlatType);
+                    PlatType.Value = string.IsNullOrWhiteSpace(record?.PlatType) ? DBNull.Value : record.PlatType;
+
+                    var PlatLot = command.CreateParameter();
+                    PlatLot.ParameterName = "$PlatLot";
+                    command.Parameters.Add(PlatLot);
+                    PlatLot.Value = string.IsNullOrWhiteSpace(record?.PlatLot) ? DBNull.Value : record.PlatType;
+
+                    var Major = command.CreateParameter();
+                    Major.ParameterName = "$Major";
+                    command.Parameters.Add(Major);
+                    Major.Value = string.IsNullOrWhiteSpace(record?.Major) ? DBNull.Value : record.Major;
+
+                    var Minor = command.CreateParameter();
+                    Minor.ParameterName = "$Minor";
+                    command.Parameters.Add(Minor);
+                    Minor.Value = string.IsNullOrWhiteSpace(record?.Minor) ? DBNull.Value : record.Minor;
+
+                    var ParcelNumber = command.CreateParameter();
+                    ParcelNumber.ParameterName = "$ParcelNumber";
+                    command.Parameters.Add(ParcelNumber);
+                    ParcelNumber.Value = string.IsNullOrWhiteSpace(record?.ParcelNumber) ? DBNull.Value : record.ParcelNumber;
+
+                    var PlatBlock = command.CreateParameter();
+                    PlatBlock.ParameterName = "$PlatBlock";
+                    command.Parameters.Add(PlatBlock);
+                    PlatBlock.Value = string.IsNullOrWhiteSpace(record?.PlatBlock) ? DBNull.Value : record.PlatBlock;
+
+                    var SellerName = command.CreateParameter();
+                    SellerName.ParameterName = "$SellerName";
+                    command.Parameters.Add(SellerName);
+                    SellerName.Value = string.IsNullOrWhiteSpace(record?.SellerName) ? DBNull.Value : record.SellerName;
+
+                    var BuyerName = command.CreateParameter();
+                    BuyerName.ParameterName = "$BuyerName";
+                    command.Parameters.Add(BuyerName);
+                    BuyerName.Value = string.IsNullOrWhiteSpace(record?.BuyerName) ? DBNull.Value : record.BuyerName;
+
+                    var PropertyType = command.CreateParameter();
+                    PropertyType.ParameterName = "$PropertyType";
+                    command.Parameters.Add(PropertyType);
+                    PropertyType.Value = string.IsNullOrWhiteSpace(record?.PropertyType) ? DBNull.Value : record.PropertyType;
+
+                    var PrincipalUse = command.CreateParameter();
+                    PrincipalUse.ParameterName = "$PrincipalUse";
+                    command.Parameters.Add(PrincipalUse);
+                    PrincipalUse.Value = string.IsNullOrWhiteSpace(record?.PrincipalUse) ? DBNull.Value : record.PrincipalUse;
+
+                    var SaleInstrument = command.CreateParameter();
+                    SaleInstrument.ParameterName = "$SaleInstrument";
+                    command.Parameters.Add(SaleInstrument);
+                    SaleInstrument.Value = string.IsNullOrWhiteSpace(record?.SaleInstrument) ? DBNull.Value : record.SaleInstrument;
+
+                    var AFForestLand = command.CreateParameter();
+                    AFForestLand.ParameterName = "$AFForestLand";
+                    command.Parameters.Add(AFForestLand);
+                    AFForestLand.Value = record.AFForestLand;
+
+                    var AFCurrentUseLand = command.CreateParameter();
+                    AFCurrentUseLand.ParameterName = "$AFCurrentUseLand";
+                    command.Parameters.Add(AFCurrentUseLand);
+                    AFCurrentUseLand.Value = record.AFCurrentUseLand;
+
+                    var AFNonProfitUse = command.CreateParameter();
+                    AFNonProfitUse.ParameterName = "$AFNonProfitUse";
+                    command.Parameters.Add(AFNonProfitUse);
+                    AFNonProfitUse.Value = record.AFNonProfitUse;
+
+                    var AFHistoricProperty = command.CreateParameter();
+                    AFHistoricProperty.ParameterName = "$AFHistoricProperty";
+                    command.Parameters.Add(AFHistoricProperty);
+                    AFHistoricProperty.Value = record.AFHistoricProperty;
+
+                    var SaleReason = command.CreateParameter();
+                    SaleReason.ParameterName = "$SaleReason";
+                    command.Parameters.Add(SaleReason);
+                    SaleReason.Value = string.IsNullOrWhiteSpace(record?.SaleReason) ? DBNull.Value : record.SaleReason;
+
+                    var PropertyClass = command.CreateParameter();
+                    PropertyClass.ParameterName = "$PropertyClass";
+                    command.Parameters.Add(PropertyClass);
+                    PropertyClass.Value = string.IsNullOrWhiteSpace(record?.PropertyClass) ? DBNull.Value : record.PropertyClass;
+
+                    var SaleWarning = command.CreateParameter();
+                    SaleWarning.ParameterName = "$SaleWarning";
+                    command.Parameters.Add(SaleWarning);
+                    SaleWarning.Value = string.IsNullOrWhiteSpace(record?.SaleWarning) ? DBNull.Value : record.SaleWarning;
+
+                    var IngestedOn = command.CreateParameter();
+                    IngestedOn.ParameterName = "$IngestedOn";
+                    command.Parameters.Add(IngestedOn);
+                    IngestedOn.Value = record.IngestedOn;
+
+                    await command.ExecuteNonQueryAsync();
                 }
+                await transaction.CommitAsync();
             }
+            return true;
         }
 
         public static async Task IngestByParcelNumberAsync(string parcelNumber, eRealPropertyContext context)

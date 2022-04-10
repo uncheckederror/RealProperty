@@ -1,12 +1,15 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 
+using Flurl.Http;
+
 using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Threading.Tasks;
 
 namespace eRealProperty.Models
@@ -34,9 +37,31 @@ namespace eRealProperty.Models
         public char SplitCode { get; set; }
         public DateTime IngestedOn { get; set; }
 
-        public static async Task<bool> IngestAsync(DbContextOptions<eRealPropertyContext> contextOptions)
+        public static async Task<bool> IngestAsync(eRealPropertyContext context, string zipUrl, string fileName)
         {
-            var pathToCSV = Path.Combine(AppContext.BaseDirectory, "SourceData\\EXTR_ValueHistory_V.csv");
+            if (string.IsNullOrWhiteSpace(zipUrl) || string.IsNullOrWhiteSpace(fileName))
+            {
+                return false;
+            }
+
+            var pathtoFile = await zipUrl.DownloadFileAsync(AppContext.BaseDirectory);
+            var pathToCSV = Path.Combine(AppContext.BaseDirectory, fileName);
+
+            var fileTypes = new string[] { ".txt", ".csv" };
+            // If a file with the same name already exists it will break the downloading process, so we need to make sure they are deleted.
+            foreach (var type in fileTypes)
+            {
+                var filePath = Path.Combine(AppContext.BaseDirectory, Path.GetFileNameWithoutExtension(pathtoFile) + type);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+
+            if (!File.Exists(pathToCSV))
+            {
+                ZipFile.ExtractToDirectory(pathtoFile, AppContext.BaseDirectory);
+            }
 
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
@@ -47,33 +72,120 @@ namespace eRealProperty.Models
             using (var reader = new StreamReader(pathToCSV))
             using (var csv = new CsvReader(reader, config))
             {
-                var context = new eRealPropertyContext(contextOptions);
-                context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                var count = 0;
-                const int batchSize = 100;
                 csv.Read();
                 csv.ReadHeader();
-                var record = new RealPropertyAccountTaxYear();
+                var transaction = context.Database.BeginTransaction();
 
                 while (csv.Read())
                 {
-                    record = csv.GetRecord<RealPropertyAccountTaxYear>();
+                    var record = csv.GetRecord<RealPropertyAccountTaxYear>();
                     record.Id = Guid.NewGuid();
                     record.IngestedOn = DateTime.Now;
                     var checkTranslation = record.TranslateFieldsUsingLookupsToText();
-                    count++;
-                    await context.AddAsync(record);
 
-                    if (count != 0 && count % batchSize == 0)
-                    {
-                        await context.SaveChangesAsync();
-                        context = new eRealPropertyContext(contextOptions);
-                        context.ChangeTracker.AutoDetectChangesEnabled = false;
-                    }
+                    var command = context.Database.GetDbConnection().CreateCommand();
+                    command.CommandText =
+                        $"insert into RealPropertyAccountTaxYears (Id, Major, Minor, ParcelNumber, TaxYr, OmitYr, ApprLandVal, ApprImpsVal, ApprImpIncr, LandVal, ImpsVal, TaxValReason, TaxStat, LevyCode, ChangeDate, ChangeDocId, Reason, SplitCode, IngestedOn) " +
+                        $"values ($Id, $Major, $Minor, $ParcelNumber, $TaxYr, $OmitYr, $ApprLandVal, $ApprImpsVal, $ApprImpIncr, $LandVal, $ImpsVal, $TaxValReason, $TaxStat, $LevyCode, $ChangeDate, $ChangeDocId, $Reason, $SplitCode, $IngestedOn);";
+
+                    var Id = command.CreateParameter();
+                    Id.ParameterName = "$Id";
+                    command.Parameters.Add(Id);
+                    Id.Value = record.Id;
+
+                    var Major = command.CreateParameter();
+                    Major.ParameterName = "$Major";
+                    command.Parameters.Add(Major);
+                    Major.Value = record.Major;
+
+                    var Minor = command.CreateParameter();
+                    Minor.ParameterName = "$Minor";
+                    command.Parameters.Add(Minor);
+                    Minor.Value = record.Minor;
+
+                    var ParcelNumber = command.CreateParameter();
+                    ParcelNumber.ParameterName = "$ParcelNumber";
+                    command.Parameters.Add(ParcelNumber);
+                    ParcelNumber.Value = record.ParcelNumber;
+
+                    var TaxYr = command.CreateParameter();
+                    TaxYr.ParameterName = "$TaxYr";
+                    command.Parameters.Add(TaxYr);
+                    TaxYr.Value = record.TaxYr;
+
+                    var OmitYr = command.CreateParameter();
+                    OmitYr.ParameterName = "$OmitYr";
+                    command.Parameters.Add(OmitYr);
+                    OmitYr.Value = record.OmitYr;
+
+                    var ApprLandVal = command.CreateParameter();
+                    ApprLandVal.ParameterName = "$ApprLandVal";
+                    command.Parameters.Add(ApprLandVal);
+                    ApprLandVal.Value = record.ApprLandVal;
+
+                    var ApprImpsVal = command.CreateParameter();
+                    ApprImpsVal.ParameterName = "$ApprImpsVal";
+                    command.Parameters.Add(ApprImpsVal);
+                    ApprImpsVal.Value = record.ApprImpsVal;
+
+                    var ApprImpIncr = command.CreateParameter();
+                    ApprImpIncr.ParameterName = "$ApprImpIncr";
+                    command.Parameters.Add(ApprImpIncr);
+                    ApprImpIncr.Value = record.ApprImpIncr;
+
+                    var LandVal = command.CreateParameter();
+                    LandVal.ParameterName = "$LandVal";
+                    command.Parameters.Add(LandVal);
+                    LandVal.Value = record.LandVal;
+
+                    var ImpsVal = command.CreateParameter();
+                    ImpsVal.ParameterName = "$ImpsVal";
+                    command.Parameters.Add(ImpsVal);
+                    ImpsVal.Value = record.ImpsVal;
+
+                    var TaxValReason = command.CreateParameter();
+                    TaxValReason.ParameterName = "$TaxValReason";
+                    command.Parameters.Add(TaxValReason);
+                    TaxValReason.Value = string.IsNullOrWhiteSpace(record?.TaxValReason) ? DBNull.Value : record.TaxValReason;
+
+                    var TaxStat = command.CreateParameter();
+                    TaxStat.ParameterName = "$TaxStat";
+                    command.Parameters.Add(TaxStat);
+                    TaxStat.Value = string.IsNullOrWhiteSpace(record?.TaxStat) ? DBNull.Value : record.TaxStat;
+
+                    var LevyCode = command.CreateParameter();
+                    LevyCode.ParameterName = "$LevyCode";
+                    command.Parameters.Add(LevyCode);
+                    LevyCode.Value = record.LevyCode;
+
+                    var ChangeDate = command.CreateParameter();
+                    ChangeDate.ParameterName = "$ChangeDate";
+                    command.Parameters.Add(ChangeDate);
+                    ChangeDate.Value = record.ChangeDate;
+
+                    var ChangeDocId = command.CreateParameter();
+                    ChangeDocId.ParameterName = "$ChangeDocId";
+                    command.Parameters.Add(ChangeDocId);
+                    ChangeDocId.Value = record.ChangeDocId;
+
+                    var Reason = command.CreateParameter();
+                    Reason.ParameterName = "$Reason";
+                    command.Parameters.Add(Reason);
+                    Reason.Value = record.Reason;
+
+                    var SplitCode = command.CreateParameter();
+                    SplitCode.ParameterName = "$SplitCode";
+                    command.Parameters.Add(SplitCode);
+                    SplitCode.Value = record.SplitCode;
+
+                    var IngestedOn = command.CreateParameter();
+                    IngestedOn.ParameterName = "$IngestedOn";
+                    command.Parameters.Add(IngestedOn);
+                    IngestedOn.Value = record.IngestedOn;
+
+                    await command.ExecuteNonQueryAsync();
                 }
-
-                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
 
             return true;

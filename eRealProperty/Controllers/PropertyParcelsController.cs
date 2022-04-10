@@ -35,9 +35,18 @@ namespace eRealProperty.Controllers
 
                 if (parcels is null || !parcels.Any())
                 {
-                    var checkIngest = await PropertyParcel.IngestByParcelNumberAsync(AccountNumber, _context);
+                    var results = await _context.PropertyParcels.Where(x => x.ParcelNumber == AccountNumber).AsNoTracking().ToListAsync();
 
-                    parcels = await _context.PropertyParcels.Where(x => x.ParcelNumber == AccountNumber).AsNoTracking().ToListAsync();
+                    if (results.Any())
+                    {
+                        parcels = results;
+                    }
+                    else
+                    {
+                        var checkIngest = await PropertyParcel.IngestByParcelNumberAsync(AccountNumber, _context);
+
+                        parcels = await _context.PropertyParcels.Where(x => x.ParcelNumber == AccountNumber).AsNoTracking().ToListAsync();
+                    }
                 }
             }
             else if (AccountNumber.Length == 14)
@@ -46,9 +55,16 @@ namespace eRealProperty.Controllers
 
                 if (parcels is null || !parcels.Any())
                 {
-                    var checkIngest = await PropertyParcel.IngestByParcelNumberAsync(AccountNumber.Substring(0, 10), _context);
+                    var results = await _context.PropertyParcels.Where(x => x.ParcelNumber == AccountNumber.Substring(0, 10)).AsNoTracking().ToListAsync();
 
-                    parcels = await _context.PropertyParcels.Where(x => x.ParcelNumber == AccountNumber.Substring(0, 10)).AsNoTracking().ToListAsync();
+                    if (results.Any())
+                    {
+                        parcels = results;
+                    }
+                    else
+                    {
+                        parcels = await _context.PropertyParcels.Where(x => x.ParcelNumber == AccountNumber.Substring(0, 10)).AsNoTracking().ToListAsync();
+                    }
                 }
             }
             else

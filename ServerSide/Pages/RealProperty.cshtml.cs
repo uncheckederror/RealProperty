@@ -71,30 +71,16 @@ namespace ServerSide.Pages
             if (RealPropertyAccounts is not null && RealPropertyAccounts.Count() == 1)
             {
                 var parcelQuery = RealPropertyAccounts.FirstOrDefault().ParcelNumber;
+                var major = RealPropertyAccounts.FirstOrDefault().Major;
+                var minor = RealPropertyAccounts.FirstOrDefault().Minor;
 
-                using var parcels = new PropertyParcelsController(_context);
+                Parcels = await _context.PropertyParcels.Where(x => x.ParcelNumber == parcelQuery).AsNoTracking().ToListAsync();
 
-                var results = await parcels.GetPropertyParcelByAccountNumber(parcelQuery);
+                TaxYears = await _context.RealPropertyAccountTaxYears.Where(x => x.ParcelNumber == parcelQuery).AsNoTracking().ToListAsync();
 
-                Parcels = results.Value;
+                ResidentialBuildings = await _context.ResidentialBuildings.Where(x => x.ParcelNumber == parcelQuery).AsNoTracking().ToListAsync();
 
-                using var taxYears = new RealPropertyTaxYearsController(_context);
-
-                var years = await taxYears.GetAllTaxYearsForASpecificAccount(parcelQuery);
-
-                TaxYears = years.Value;
-
-                using var residentialBuildings = new ResidentialBuildingsController(_context);
-
-                var buildings = await residentialBuildings.GetResidentialBuildingsByParcelNumberAsync(parcelQuery);
-
-                ResidentialBuildings = buildings.Value;
-
-                using var realaccountSales = new RealPropertySalesController(_context);
-
-                var sales = await realaccountSales.GetSalesByParcelAsync(parcelQuery);
-
-                Sales = sales.Value;
+                Sales = await _context.Sales.Where(x => x.Major == major && x.Minor == minor).AsNoTracking().ToArrayAsync();
             }
         }
     }

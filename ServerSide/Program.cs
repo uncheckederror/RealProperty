@@ -86,7 +86,7 @@ namespace ServerSide
                 }
             }
 
-            if (true)
+            if (!await db.Sales.AnyAsync())
             {
                 Log.Information("Ingesting Sales.");
                 await db.Database.ExecuteSqlRawAsync("DELETE FROM Sales;");

@@ -67,7 +67,7 @@
 @{
     if (Model?.RealPropertyAccounts is not null && Model.RealPropertyAccounts.Any())
     {
-        <section class="hero is-success is-small">
+        <section class="hero is-info is-small">
             <div class="hero-body container">
                 <div class="has-text-centered">
                     <p class="title is-1">Real Property</p>
@@ -78,7 +78,7 @@
                                 <input id="searchInput" class="input is-large" name="accountNumber" type="text" placeholder="Enter an account number" value="@Model?.AccountNumber" onchange="handleSearchQuery(this)" autocomplete="off" oninput="onInput(this)">
                             </p>
                             @*<p class="control">
-                                    <input type="submit" id="submitSearch" value="Search" class="button is-large is-success is-inverted is-focused" />
+                                <input type="submit" id="submitSearch" value="Search" class="button is-large is-success is-inverted is-focused" />
                                 </p>*@
                         </div>
                     </form>
@@ -99,7 +99,7 @@
                                 <input id="searchInput" class="input is-large" name="accountNumber" type="text" placeholder="Enter an account number" value="@Model?.AccountNumber" onchange="handleSearchQuery(this)" autocomplete="off" oninput="onInput(this)">
                             </p>
                             @*<p class="control">
-                                    <input type="submit" id="submitSearch" value="Search" class="button is-large is-link is-inverted is-focused" />
+                                <input type="submit" id="submitSearch" value="Search" class="button is-large is-link is-inverted is-focused" />
                                 </p>*@
                         </div>
                     </form>
@@ -120,14 +120,42 @@
                     <li class="is-active"><a href="#" aria-current="page">@Model?.RealPropertyAccounts.Count() Results Found</a></li>
                 </ul>
             </nav>
+            <div class="tabs is-boxed is-medium">
+                <ul>
+                    <li class="is-active">
+                        <a href="#taxAccount">
+                            <span class="icon is-small">🏠</span>
+                            <span>Tax Account</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#sales">
+                            <span class="icon is-small">💰</span>
+                            <span>Sales</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#parcel">
+                            <span class="icon is-small">⛰️</span>
+                            <span>Parcel</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#taxyears">
+                            <span class="icon is-small">⌛</span>
+                            <span>Tax Years</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
             @foreach (var account in Model?.RealPropertyAccounts)
             {
-                <p class="subtitle is-1">Tax Account</p>
+                <p class="subtitle is-1" id="taxAccount">Tax Account</p>
                 <div class="tile is-ancestor">
                     <div class="tile is-vertical is-8">
                         <div class="tile">
                             <div class="tile is-parent is-vertical">
-                                <article class="tile is-child notification is-primary box">
+                                <article class="tile is-child notification is-dark box">
                                     <p class="subtitle">Account Number</p>
                                     <p class="title is-1">@account.AcctNbr</p>
                                     <p class="subtitle">Parcel Number</p>
@@ -137,7 +165,7 @@
                                         <p class="subtitle">Minor</p>
                                         <p class="title">@account.Minor</p>*@
                                 </article>
-                                <article class="tile is-child notification is-warning box">
+                                <article class="tile is-child notification is-info box">
                                     @if (Model?.ResidentialBuildings is not null && Model.ResidentialBuildings.Any())
                                     {
                                         foreach (var residential in Model.ResidentialBuildings)
@@ -170,7 +198,7 @@
                                 </article>
                             </div>
                             <div class="tile is-parent">
-                                <article class="tile is-child notification is-info box">
+                                <article class="tile is-child notification box">
                                     <div class="content">
                                         <p class="subtitle">Tax Year</p>
                                         <p class="title is-1">@account.BillYr</p>
@@ -240,7 +268,7 @@
                         </div>
                     </div>
                     <div class="tile is-parent">
-                        <article class="tile is-child notification is-danger box">
+                        <article class="tile is-child notification is-info box">
                             <p class="subtitle">Levy Code</p>
                             <p class="title">@account.LevyCode</p>
                             @{
@@ -282,99 +310,101 @@
         </section>
         @if (Model?.Sales is not null)
         {
-            <section class="section container pt-3">
-                <p class="subtitle is-1">Sales</p>
-                <div class="tile is-ancestor">
-                    <div class="tile is-parent">
-                        <article class="tile is-child">
+            <div class="level has-background-info">
+                <section class="section container pt-3">
+                    <p class="subtitle is-1 has-text-white" id="sales">Sales</p>
+                    <div class="tile is-ancestor">
+                        <div class="tile is-parent">
+                            <article class="tile is-child">
 
-                            <div class="columns is-multiline">
-                                @foreach (var sale in Model?.Sales.OrderByDescending(x => x.DocumentDate))
-                                {
-                                    <div class="column is-one-third">
-                                        <div class="card">
-                                            <div class="card-content">
-                                                <div class="content">
-                                                    <p class="subtitle">Document Date</p>
-                                                    <p class="title">
-                                                        @sale.DocumentDate.ToShortDateString()
-                                                    </p>
-                                                    <p class="subtitle">Excise Number</p>
-                                                    <p class="title">
-                                                        @sale.ExciseTaxNbr
-                                                    </p>
-                                                    <p class="subtitle">Sale Reason</p>
-                                                    <p class="title">
-                                                        @sale.SaleReason
-                                                    </p>
-                                                    <p class="subtitle">Sale Price</p>
-                                                    <p class="title">
-                                                        @sale.SalePrice.ToString("C2")
-                                                    </p>
-                                                    <p class="subtitle">Buyer Name</p>
-                                                    <p class="title">
-                                                        @sale.BuyerName
-                                                    </p>
-                                                    <p class="subtitle">Seller Name</p>
-
-                                                    <p class="title">
-                                                        @sale.SellerName
-                                                    </p>
-                                                    <p class="subtitle">Sale Instrument</p>
-
-                                                    <p class="title">
-                                                        @sale.SaleInstrument
-                                                    </p>
-                                                    <p class="subtitle">Recording Number</p>
-
-                                                    <p class="title">
-                                                        @sale.RecordingNbr
-                                                    </p>
-
-                                                    @if (!string.IsNullOrWhiteSpace(sale.Volume))
-                                                    {
-                                                        <p class="subtitle">Volume and Page Number(s)</p>
+                                <div class="columns is-multiline">
+                                    @foreach (var sale in Model?.Sales.OrderByDescending(x => x.DocumentDate))
+                                    {
+                                        <div class="column is-one-third">
+                                            <div class="card">
+                                                <div class="card-content">
+                                                    <div class="content">
+                                                        <p class="subtitle">Document Date</p>
                                                         <p class="title">
-                                                            @sale.Volume @sale.Page
+                                                            @sale.DocumentDate.ToShortDateString()
                                                         </p>
-                                                    }
-
-                                                    <p class="subtitle">Warnings</p>
-
-                                                    <p class="title">
-                                                        @sale.SaleWarning
-                                                    </p>
-
-                                                    @if (!string.IsNullOrWhiteSpace(sale.PlatNbr))
-                                                    {
-                                                        <p class="subtitle">Plat Information</p>
+                                                        <p class="subtitle">Excise Number</p>
                                                         <p class="title">
-                                                            @sale.PlatNbr @sale.PlatBlock @sale.PlatLot @sale.PlatType
+                                                            @sale.ExciseTaxNbr
                                                         </p>
-                                                    }
+                                                        <p class="subtitle">Sale Reason</p>
+                                                        <p class="title">
+                                                            @sale.SaleReason
+                                                        </p>
+                                                        <p class="subtitle">Sale Price</p>
+                                                        <p class="title">
+                                                            @sale.SalePrice.ToString("C2")
+                                                        </p>
+                                                        <p class="subtitle">Buyer Name</p>
+                                                        <p class="title">
+                                                            @sale.BuyerName
+                                                        </p>
+                                                        <p class="subtitle">Seller Name</p>
+
+                                                        <p class="title">
+                                                            @sale.SellerName
+                                                        </p>
+                                                        <p class="subtitle">Sale Instrument</p>
+
+                                                        <p class="title">
+                                                            @sale.SaleInstrument
+                                                        </p>
+                                                        <p class="subtitle">Recording Number</p>
+
+                                                        <p class="title">
+                                                            @sale.RecordingNbr
+                                                        </p>
+
+                                                        @if (!string.IsNullOrWhiteSpace(sale.Volume))
+                                                        {
+                                                            <p class="subtitle">Volume and Page Number(s)</p>
+                                                            <p class="title">
+                                                                @sale.Volume @sale.Page
+                                                            </p>
+                                                        }
+
+                                                        <p class="subtitle">Warnings</p>
+
+                                                        <p class="title">
+                                                            @sale.SaleWarning
+                                                        </p>
+
+                                                        @if (!string.IsNullOrWhiteSpace(sale.PlatNbr))
+                                                        {
+                                                            <p class="subtitle">Plat Information</p>
+                                                            <p class="title">
+                                                                @sale.PlatNbr @sale.PlatBlock @sale.PlatLot @sale.PlatType
+                                                            </p>
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                }
-                            </div>
-                        </article>
+                                    }
+                                </div>
+                            </article>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
         }
 
         @if (Model?.Parcels is not null && Model.Parcels.Any())
         {
             <section class="section container pt-3">
-                <p class="subtitle is-1">Property Parcel</p>
+                <p class="subtitle is-1" id="parcel">Property Parcel</p>
                 @foreach (var parcel in Model.Parcels)
                 {
                     <div class="tile is-ancestor">
                         <div class="tile is-vertical is-8">
                             <div class="tile">
                                 <div class="tile is-parent is-vertical">
-                                    <article class="tile is-child notification is-primary box">
+                                    <article class="tile is-child notification is-dark box">
                                         <p class="subtitle">Parcel Number</p>
                                         <p class="title">@parcel.ParcelNumber</p>
                                         <p class="subtitle">Section Township Range</p>
@@ -395,7 +425,7 @@
                                             <p class="title">@parcel.PlatBlock</p>
                                         }
                                     </article>
-                                    <article class="tile is-child notification is-warning box">
+                                    <article class="tile is-child notification is-info box">
                                         @{
                                             var views = 0;
 
@@ -746,7 +776,7 @@
                                     </article>
                                 </div>
                                 <div class="tile is-parent">
-                                    <article class="tile is-child notification is-info box">
+                                    <article class="tile is-child notification box">
                                         <p class="subtitle">Property Type</p>
                                         <p class="title">@parcel.PropType</p>
                                         <p class="subtitle">Area</p>
@@ -771,7 +801,7 @@
                             </div>
                         </div>
                         <div class="tile is-parent">
-                            <article class="tile is-child notification is-danger box">
+                            <article class="tile is-child notification is-info box">
                                 <div class="content">
                                     @if (!string.IsNullOrWhiteSpace(parcel.HBUAsIfVacant))
                                     {
@@ -842,146 +872,148 @@
 
         @if (Model?.TaxYears is not null)
         {
-            <section class="section container pt-3">
-                <p class="subtitle is-1">Tax Years</p>
-                <div class="tile is-ancestor">
-                    <div class="tile is-parent">
-                        <a href="/RealPropertyTaxYears?accountNumber=@Model?.AccountNumber">
-                            <article class="tile is-child box">
-                                <div class="table-container">
-                                    <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
-                                        <thead>
-                                            <tr>
-                                                <th>
-                                                    Year Valued
-                                                </th>
-                                                <th>
-                                                    Update Reason
-                                                </th>
-                                                <th>
-                                                    Tax Year
-                                                </th>
-                                                <th>
-                                                    Appraised Land Value
-                                                </th>
-                                                <th>
-                                                    Appraised Improvements Value
-                                                </th>
-                                                <th>
-                                                    Total Appraised Value
-                                                </th>
-                                                <th>
-                                                    Appraised Improvements Increase
-                                                </th>
-                                                <th>
-                                                    Taxable Land Value
-                                                </th>
-                                                <th>
-                                                    Taxable Improvements Value
-                                                </th>
-                                                <th class="is-selected">
-                                                    Total Taxable Value
-                                                </th>
-                                                <th>
-                                                    Levy Code
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @{
-                                                foreach (var year in Model?.TaxYears)
-                                                {
-                                                    var yearAssessed = year.TaxYr + 1;
-                                                    var totalAppraised = year?.ApprImpsVal + year?.ApprLandVal;
-                                                    var totalTaxable = year?.LandVal + year?.ImpsVal;
-                                                    if (year.TaxYr == DateTime.Now.Year)
+            <div class="level has-background-info">
+                <section class="section container pt-3">
+                    <p class="subtitle is-1 has-text-white" id="taxyears">Tax Years</p>
+                    <div class="tile is-ancestor">
+                        <div class="tile is-parent">
+                            <a href="/RealPropertyTaxYears?accountNumber=@Model?.AccountNumber">
+                                <article class="tile is-child box">
+                                    <div class="table-container">
+                                        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        Year Valued
+                                                    </th>
+                                                    <th>
+                                                        Update Reason
+                                                    </th>
+                                                    <th>
+                                                        Tax Year
+                                                    </th>
+                                                    <th>
+                                                        Appraised Land Value
+                                                    </th>
+                                                    <th>
+                                                        Appraised Improvements Value
+                                                    </th>
+                                                    <th>
+                                                        Total Appraised Value
+                                                    </th>
+                                                    <th>
+                                                        Appraised Improvements Increase
+                                                    </th>
+                                                    <th>
+                                                        Taxable Land Value
+                                                    </th>
+                                                    <th>
+                                                        Taxable Improvements Value
+                                                    </th>
+                                                    <th class="is-selected">
+                                                        Total Taxable Value
+                                                    </th>
+                                                    <th>
+                                                        Levy Code
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @{
+                                                    foreach (var year in Model?.TaxYears)
                                                     {
-                                                        <tr class="is-selected">
-                                                            <td>
-                                                                @yearAssessed
-                                                            </td>
-                                                            <td>
-                                                                @year.Reason
-                                                            </td>
-                                                            <td>
-                                                                @year.TaxYr
-                                                            </td>
-                                                            <td>
-                                                                @year.ApprLandVal.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @year.ApprImpsVal.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @totalAppraised?.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @year.ApprImpIncr.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @year.LandVal.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @year.ImpsVal.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @totalTaxable?.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @year.LevyCode
-                                                            </td>
-                                                        </tr>
+                                                        var yearAssessed = year.TaxYr + 1;
+                                                        var totalAppraised = year?.ApprImpsVal + year?.ApprLandVal;
+                                                        var totalTaxable = year?.LandVal + year?.ImpsVal;
+                                                        if (year.TaxYr == DateTime.Now.Year)
+                                                        {
+                                                            <tr class="is-selected">
+                                                                <td>
+                                                                    @yearAssessed
+                                                                </td>
+                                                                <td>
+                                                                    @year.Reason
+                                                                </td>
+                                                                <td>
+                                                                    @year.TaxYr
+                                                                </td>
+                                                                <td>
+                                                                    @year.ApprLandVal.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @year.ApprImpsVal.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @totalAppraised?.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @year.ApprImpIncr.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @year.LandVal.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @year.ImpsVal.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @totalTaxable?.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @year.LevyCode
+                                                                </td>
+                                                            </tr>
 
-                                                    }
-                                                    else
-                                                    {
-                                                        <tr>
-                                                            <td>
-                                                                @yearAssessed
-                                                            </td>
-                                                            <td>
-                                                                @year.Reason
-                                                            </td>
-                                                            <td>
-                                                                @year.TaxYr
-                                                            </td>
-                                                            <td>
-                                                                @year.ApprLandVal.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @year.ApprImpsVal.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @totalAppraised?.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @year.ApprImpIncr.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @year.LandVal.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @year.ImpsVal.ToString("C2")
-                                                            </td>
-                                                            <td class="is-selected">
-                                                                @totalTaxable?.ToString("C2")
-                                                            </td>
-                                                            <td>
-                                                                @year.LevyCode
-                                                            </td>
-                                                        </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td>
+                                                                    @yearAssessed
+                                                                </td>
+                                                                <td>
+                                                                    @year.Reason
+                                                                </td>
+                                                                <td>
+                                                                    @year.TaxYr
+                                                                </td>
+                                                                <td>
+                                                                    @year.ApprLandVal.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @year.ApprImpsVal.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @totalAppraised?.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @year.ApprImpIncr.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @year.LandVal.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @year.ImpsVal.ToString("C2")
+                                                                </td>
+                                                                <td class="is-selected">
+                                                                    @totalTaxable?.ToString("C2")
+                                                                </td>
+                                                                <td>
+                                                                    @year.LevyCode
+                                                                </td>
+                                                            </tr>
 
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </article>
-                        </a>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </article>
+                            </a>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
         }
     }
 }

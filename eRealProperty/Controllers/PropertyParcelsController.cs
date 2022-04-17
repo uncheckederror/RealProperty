@@ -41,12 +41,6 @@ namespace eRealProperty.Controllers
                     {
                         parcels = results;
                     }
-                    else
-                    {
-                        var checkIngest = await PropertyParcel.IngestByParcelNumberAsync(AccountNumber, _context);
-
-                        parcels = await _context.PropertyParcels.Where(x => x.ParcelNumber == AccountNumber).AsNoTracking().ToListAsync();
-                    }
                 }
             }
             else if (AccountNumber.Length == 14)

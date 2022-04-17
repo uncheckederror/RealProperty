@@ -30,18 +30,7 @@ namespace eRealProperty.Controllers
 
                 if (sales is null || !sales.Any())
                 {
-                    await RealPropertyAccountSale.IngestByParcelNumberAsync(ParcelNumber, _context);
-
-                    sales = await _context.Sales.Where(x => x.ParcelNumber == ParcelNumber).ToArrayAsync();
-
-                    if (sales is null || !sales.Any())
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        return sales;
-                    }
+                    return NotFound();
                 }
                 else
                 {

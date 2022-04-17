@@ -195,47 +195,6 @@ namespace eRealProperty.Models
             return true;
         }
 
-        public static async Task<bool> IngestByParcelNumberAsync(string parcelNumber, eRealPropertyContext context)
-        {
-            var pathToCSV = Path.Combine(AppContext.BaseDirectory, "SourceData\\EXTR_ValueHistory_V.csv");
-
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                NewLine = Environment.NewLine,
-                MissingFieldFound = null
-            };
-
-            using (var reader = new StreamReader(pathToCSV))
-            using (var csv = new CsvReader(reader, config))
-            {
-                context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                csv.Read();
-                csv.ReadHeader();
-                var record = new RealPropertyAccountTaxYear();
-
-                while (csv.Read())
-                {
-                    record = csv.GetRecord<RealPropertyAccountTaxYear>();
-                    var major = parcelNumber.Substring(0, 6);
-                    var minor = parcelNumber.Substring(6, 4);
-
-                    if (record.Major == major && record.Minor == minor)
-                    {
-                        // Do something with the record.
-                        record.Id = Guid.NewGuid();
-                        record.IngestedOn = DateTime.Now;
-                        var checkTranslation = record.TranslateFieldsUsingLookupsToText();
-                        await context.AddAsync(record);
-                    }
-                }
-
-                await context.SaveChangesAsync();
-            }
-
-            return true;
-        }
-
         public bool TranslateFieldsUsingLookupsToText()
         {
             ParcelNumber = GetParcelNumber();

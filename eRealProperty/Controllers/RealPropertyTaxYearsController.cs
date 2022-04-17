@@ -35,18 +35,7 @@ namespace eRealProperty.Controllers
 
             if (realPropertyTaxYear is null || !realPropertyTaxYear.Any())
             {
-                var checkIngest = await RealPropertyAccountTaxYear.IngestByParcelNumberAsync(parcelNumber, _context);
-
-                realPropertyTaxYear = await _context.RealPropertyAccountTaxYears.Where(x => x.ParcelNumber == parcelNumber).OrderByDescending(x => x.TaxYr).AsNoTracking().ToListAsync();
-
-                if (realPropertyTaxYear is null || !realPropertyTaxYear.Any())
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    return realPropertyTaxYear;
-                }
+                return NotFound();
             }
             else
             {

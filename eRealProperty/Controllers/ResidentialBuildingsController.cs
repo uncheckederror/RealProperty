@@ -30,18 +30,7 @@ namespace eRealProperty.Controllers
 
                 if (buildings is null || !buildings.Any())
                 {
-                    var checkBuilding = await ResidentialBuilding.IngestByParcelNumberAsync(ParcelNumber, _context);
-
-                    buildings = await _context.ResidentialBuildings.Where(x => x.ParcelNumber == ParcelNumber).ToArrayAsync();
-
-                    if (buildings is null || !buildings.Any())
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        return buildings;
-                    }
+                    return NotFound();
                 }
                 else
                 {

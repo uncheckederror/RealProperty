@@ -3,8 +3,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -30,18 +28,7 @@ namespace eRealProperty.Controllers
 
                 if (legal is null || !legal.Any())
                 {
-                    var checkLegal = await LegalDiscription.IngestByParcelNumberAsync(ParcelNumber, _context);
-
-                    legal = await _context.LegalDiscriptions.Where(x => x.ParcelNumber == ParcelNumber).ToArrayAsync();
-
-                    if (legal is null || !legal.Any())
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        return legal;
-                    }
+                    return NotFound();
                 }
                 else
                 {

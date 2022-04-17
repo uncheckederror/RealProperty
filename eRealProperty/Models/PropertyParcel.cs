@@ -585,42 +585,6 @@ namespace eRealProperty.Models
             return true;
         }
 
-        public static async Task<bool> IngestByParcelNumberAsync(string parcelNumber, eRealPropertyContext context)
-        {
-            var pathToCSV = Path.Combine(AppContext.BaseDirectory, "SourceData\\EXTR_Parcel.csv");
-
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                NewLine = Environment.NewLine,
-                MissingFieldFound = null
-            };
-
-            using (var reader = new StreamReader(pathToCSV))
-            using (var csv = new CsvReader(reader, config))
-            {
-                context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                csv.Read();
-                csv.ReadHeader();
-                var record = new PropertyParcel();
-
-                while (csv.Read())
-                {
-                    record = csv.GetRecord<PropertyParcel>();
-
-                    if ($"{record.Major}{record.Minor}" == parcelNumber)
-                    {
-                        record.Id = Guid.NewGuid();
-                        record.IngestedOn = DateTime.Now;
-                        var checkTranslation = record.TranslateFieldsUsingLookupsToText();
-                        await context.AddAsync(record);
-                    }
-                }
-                await context.SaveChangesAsync();
-            }
-            return true;
-        }
-
         public bool TranslateFieldsUsingLookupsToText()
         {
             PropType = GetPropertyType();

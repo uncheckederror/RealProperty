@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using CsvHelper.Configuration.Attributes;
 
 using Flurl.Http;
 
@@ -17,9 +18,11 @@ namespace eRealProperty.Models
     public class RealPropertyAccountTaxYear
     {
         [Key]
+        [Ignore]
         public Guid Id { get; set; }
         public string Major { get; set; }
         public string Minor { get; set; }
+        [Ignore]
         public string ParcelNumber { get; set; }
         public int TaxYr { get; set; }
         public int OmitYr { get; set; }
@@ -29,12 +32,13 @@ namespace eRealProperty.Models
         public long LandVal { get; set; }
         public long ImpsVal { get; set; }
         public string TaxValReason { get; set; }
-        public string TaxStat { get; set; }
+        public string TaxStatus { get; set; }
         public int LevyCode { get; set; }
         public string ChangeDate { get; set; }
         public string ChangeDocId { get; set; }
         public string Reason { get; set; }
         public char SplitCode { get; set; }
+        [Ignore]
         public DateTime IngestedOn { get; set; }
 
         public static async Task<bool> IngestAsync(eRealPropertyContext context, string zipUrl, string fileName)
@@ -66,121 +70,121 @@ namespace eRealProperty.Models
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 NewLine = Environment.NewLine,
-                MissingFieldFound = null
+                MissingFieldFound = null,
+                CacheFields = true
             };
 
-            using (var reader = new StreamReader(pathToCSV))
-            using (var csv = new CsvReader(reader, config))
+            using var transaction = await context.Database.BeginTransactionAsync();
+            using var reader = new StreamReader(pathToCSV);
+            using var csv = new CsvReader(reader, config);
             {
-                csv.Read();
-                csv.ReadHeader();
-                var transaction = context.Database.BeginTransaction();
+                var command = context.Database.GetDbConnection().CreateCommand();
+                command.CommandText =
+                    $"insert into RealPropertyAccountTaxYears (Id, Major, Minor, ParcelNumber, TaxYr, OmitYr, ApprLandVal, ApprImpsVal, ApprImpIncr, LandVal, ImpsVal, TaxValReason, TaxStatus, LevyCode, ChangeDate, ChangeDocId, Reason, SplitCode, IngestedOn) " +
+                    $"values ($Id, $Major, $Minor, $ParcelNumber, $TaxYr, $OmitYr, $ApprLandVal, $ApprImpsVal, $ApprImpIncr, $LandVal, $ImpsVal, $TaxValReason, $TaxStatus, $LevyCode, $ChangeDate, $ChangeDocId, $Reason, $SplitCode, $IngestedOn);";
 
-                while (csv.Read())
+                var Id = command.CreateParameter();
+                Id.ParameterName = "$Id";
+                command.Parameters.Add(Id);
+
+                var Major = command.CreateParameter();
+                Major.ParameterName = "$Major";
+                command.Parameters.Add(Major);
+
+                var Minor = command.CreateParameter();
+                Minor.ParameterName = "$Minor";
+                command.Parameters.Add(Minor);
+
+                var ParcelNumber = command.CreateParameter();
+                ParcelNumber.ParameterName = "$ParcelNumber";
+                command.Parameters.Add(ParcelNumber);
+
+                var TaxYr = command.CreateParameter();
+                TaxYr.ParameterName = "$TaxYr";
+                command.Parameters.Add(TaxYr);
+
+                var OmitYr = command.CreateParameter();
+                OmitYr.ParameterName = "$OmitYr";
+                command.Parameters.Add(OmitYr);
+
+                var ApprLandVal = command.CreateParameter();
+                ApprLandVal.ParameterName = "$ApprLandVal";
+                command.Parameters.Add(ApprLandVal);
+
+                var ApprImpsVal = command.CreateParameter();
+                ApprImpsVal.ParameterName = "$ApprImpsVal";
+                command.Parameters.Add(ApprImpsVal);
+
+                var ApprImpIncr = command.CreateParameter();
+                ApprImpIncr.ParameterName = "$ApprImpIncr";
+                command.Parameters.Add(ApprImpIncr);
+
+                var LandVal = command.CreateParameter();
+                LandVal.ParameterName = "$LandVal";
+                command.Parameters.Add(LandVal);
+
+                var ImpsVal = command.CreateParameter();
+                ImpsVal.ParameterName = "$ImpsVal";
+                command.Parameters.Add(ImpsVal);
+
+                var TaxValReason = command.CreateParameter();
+                TaxValReason.ParameterName = "$TaxValReason";
+                command.Parameters.Add(TaxValReason);
+
+                var TaxStatus = command.CreateParameter();
+                TaxStatus.ParameterName = "$TaxStatus";
+                command.Parameters.Add(TaxStatus);
+
+                var LevyCode = command.CreateParameter();
+                LevyCode.ParameterName = "$LevyCode";
+                command.Parameters.Add(LevyCode);
+
+                var ChangeDate = command.CreateParameter();
+                ChangeDate.ParameterName = "$ChangeDate";
+                command.Parameters.Add(ChangeDate);
+
+                var ChangeDocId = command.CreateParameter();
+                ChangeDocId.ParameterName = "$ChangeDocId";
+                command.Parameters.Add(ChangeDocId);
+
+                var Reason = command.CreateParameter();
+                Reason.ParameterName = "$Reason";
+                command.Parameters.Add(Reason);
+
+                var SplitCode = command.CreateParameter();
+                SplitCode.ParameterName = "$SplitCode";
+                command.Parameters.Add(SplitCode);
+
+                var IngestedOn = command.CreateParameter();
+                IngestedOn.ParameterName = "$IngestedOn";
+                command.Parameters.Add(IngestedOn);
+
+                var records = csv.GetRecordsAsync<RealPropertyAccountTaxYear>();
+
+                await foreach (var record in records)
                 {
-                    var record = csv.GetRecord<RealPropertyAccountTaxYear>();
                     record.Id = Guid.NewGuid();
                     record.IngestedOn = DateTime.Now;
                     var checkTranslation = record.TranslateFieldsUsingLookupsToText();
 
-                    var command = context.Database.GetDbConnection().CreateCommand();
-                    command.CommandText =
-                        $"insert into RealPropertyAccountTaxYears (Id, Major, Minor, ParcelNumber, TaxYr, OmitYr, ApprLandVal, ApprImpsVal, ApprImpIncr, LandVal, ImpsVal, TaxValReason, TaxStat, LevyCode, ChangeDate, ChangeDocId, Reason, SplitCode, IngestedOn) " +
-                        $"values ($Id, $Major, $Minor, $ParcelNumber, $TaxYr, $OmitYr, $ApprLandVal, $ApprImpsVal, $ApprImpIncr, $LandVal, $ImpsVal, $TaxValReason, $TaxStat, $LevyCode, $ChangeDate, $ChangeDocId, $Reason, $SplitCode, $IngestedOn);";
-
-                    var Id = command.CreateParameter();
-                    Id.ParameterName = "$Id";
-                    command.Parameters.Add(Id);
                     Id.Value = record.Id;
-
-                    var Major = command.CreateParameter();
-                    Major.ParameterName = "$Major";
-                    command.Parameters.Add(Major);
                     Major.Value = record.Major;
-
-                    var Minor = command.CreateParameter();
-                    Minor.ParameterName = "$Minor";
-                    command.Parameters.Add(Minor);
                     Minor.Value = record.Minor;
-
-                    var ParcelNumber = command.CreateParameter();
-                    ParcelNumber.ParameterName = "$ParcelNumber";
-                    command.Parameters.Add(ParcelNumber);
                     ParcelNumber.Value = record.ParcelNumber;
-
-                    var TaxYr = command.CreateParameter();
-                    TaxYr.ParameterName = "$TaxYr";
-                    command.Parameters.Add(TaxYr);
                     TaxYr.Value = record.TaxYr;
-
-                    var OmitYr = command.CreateParameter();
-                    OmitYr.ParameterName = "$OmitYr";
-                    command.Parameters.Add(OmitYr);
                     OmitYr.Value = record.OmitYr;
-
-                    var ApprLandVal = command.CreateParameter();
-                    ApprLandVal.ParameterName = "$ApprLandVal";
-                    command.Parameters.Add(ApprLandVal);
                     ApprLandVal.Value = record.ApprLandVal;
-
-                    var ApprImpsVal = command.CreateParameter();
-                    ApprImpsVal.ParameterName = "$ApprImpsVal";
-                    command.Parameters.Add(ApprImpsVal);
                     ApprImpsVal.Value = record.ApprImpsVal;
-
-                    var ApprImpIncr = command.CreateParameter();
-                    ApprImpIncr.ParameterName = "$ApprImpIncr";
-                    command.Parameters.Add(ApprImpIncr);
                     ApprImpIncr.Value = record.ApprImpIncr;
-
-                    var LandVal = command.CreateParameter();
-                    LandVal.ParameterName = "$LandVal";
-                    command.Parameters.Add(LandVal);
                     LandVal.Value = record.LandVal;
-
-                    var ImpsVal = command.CreateParameter();
-                    ImpsVal.ParameterName = "$ImpsVal";
-                    command.Parameters.Add(ImpsVal);
                     ImpsVal.Value = record.ImpsVal;
-
-                    var TaxValReason = command.CreateParameter();
-                    TaxValReason.ParameterName = "$TaxValReason";
-                    command.Parameters.Add(TaxValReason);
                     TaxValReason.Value = string.IsNullOrWhiteSpace(record?.TaxValReason) ? DBNull.Value : record.TaxValReason;
-
-                    var TaxStat = command.CreateParameter();
-                    TaxStat.ParameterName = "$TaxStat";
-                    command.Parameters.Add(TaxStat);
-                    TaxStat.Value = string.IsNullOrWhiteSpace(record?.TaxStat) ? DBNull.Value : record.TaxStat;
-
-                    var LevyCode = command.CreateParameter();
-                    LevyCode.ParameterName = "$LevyCode";
-                    command.Parameters.Add(LevyCode);
+                    TaxStatus.Value = string.IsNullOrWhiteSpace(record?.TaxStatus) ? DBNull.Value : record.TaxStatus;
                     LevyCode.Value = record.LevyCode;
-
-                    var ChangeDate = command.CreateParameter();
-                    ChangeDate.ParameterName = "$ChangeDate";
-                    command.Parameters.Add(ChangeDate);
                     ChangeDate.Value = record.ChangeDate;
-
-                    var ChangeDocId = command.CreateParameter();
-                    ChangeDocId.ParameterName = "$ChangeDocId";
-                    command.Parameters.Add(ChangeDocId);
                     ChangeDocId.Value = record.ChangeDocId;
-
-                    var Reason = command.CreateParameter();
-                    Reason.ParameterName = "$Reason";
-                    command.Parameters.Add(Reason);
                     Reason.Value = record.Reason;
-
-                    var SplitCode = command.CreateParameter();
-                    SplitCode.ParameterName = "$SplitCode";
-                    command.Parameters.Add(SplitCode);
                     SplitCode.Value = record.SplitCode;
-
-                    var IngestedOn = command.CreateParameter();
-                    IngestedOn.ParameterName = "$IngestedOn";
-                    command.Parameters.Add(IngestedOn);
                     IngestedOn.Value = record.IngestedOn;
 
                     await command.ExecuteNonQueryAsync();
@@ -235,7 +239,7 @@ namespace eRealProperty.Models
         public bool TranslateFieldsUsingLookupsToText()
         {
             ParcelNumber = GetParcelNumber();
-            TaxStat = GetTaxStatus();
+            TaxStatus = GetTaxStatus();
             TaxValReason = GetTaxableValueReason();
 
             return true;
@@ -365,9 +369,9 @@ namespace eRealProperty.Models
 
         public string GetTaxStatus()
         {
-            if (!string.IsNullOrWhiteSpace(TaxStat))
+            if (!string.IsNullOrWhiteSpace(TaxStatus))
             {
-                return TaxStat switch
+                return TaxStatus switch
                 {
                     "O" => "Operating",
                     "T" => "Taxable",

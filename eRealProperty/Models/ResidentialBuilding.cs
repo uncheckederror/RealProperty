@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using CsvHelper.Configuration.Attributes;
 
 using Flurl.Http;
 
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -17,9 +19,12 @@ namespace eRealProperty.Models
 {
     public class ResidentialBuilding
     {
+        [Key]
+        [Ignore]
         public Guid Id { get; set; }
         public string Major { get; set; }
         public string Minor { get; set; }
+        [Ignore]
         public string ParcelNumber { get; set; }
         public int BldgNbr { get; set; }
         public int NbrLivingUnits { get; set; }
@@ -69,6 +74,7 @@ namespace eRealProperty.Models
         public int PcntNetCondition { get; set; }
         public string Condition { get; set; }
         public int AddnlCost { get; set; }
+        [Ignore]
         public DateTime IngestedOn { get; set; }
 
         public static async Task<bool> IngestAsync(eRealPropertyContext context, string zipUrl, string fileName)
@@ -100,298 +106,297 @@ namespace eRealProperty.Models
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 NewLine = Environment.NewLine,
-                MissingFieldFound = null
+                MissingFieldFound = null,
+                CacheFields = true
             };
 
-            var transaction = context.Database.BeginTransaction();
+            using var transaction = await context.Database.BeginTransactionAsync();
+            using var reader = new StreamReader(pathToCSV);
+            using var csv = new CsvReader(reader, config);
 
-            using (var reader = new StreamReader(pathToCSV))
-            using (var csv = new CsvReader(reader, config))
+            var records = csv.GetRecordsAsync<ResidentialBuilding>();
+
+            var command = context.Database.GetDbConnection().CreateCommand();
+            command.CommandText =
+                $"insert into ResidentialBuildings (Id, Major, Minor, ParcelNumber, BldgNbr, NbrLivingUnits, Address, BuildingNumber, Fraction, DirectionPrefix, StreetName, StreetType, DirectionSuffix, ZipCode, Stories, BldgGrade, BldgGradeVar, SqFt1stFloor, SqFtHalfFloor, SqFt2ndFloor, SqFtUpperFloor, SqFtUnfinFull, SqFtUnfinHalf, SqFtTotLiving, SqFtTotBasement, SqFtFinBasement, FinBasementGrade, SqFtGarageBasement, SqFtGarageAttached, DaylightBasement, SqFtOpenPorch, SqFtEnclosedPorch, SqFtDeck, HeatSystem, HeatSource, BrickStone, ViewUtilization, Bedrooms, BathHalfCount, Bath3qtrCount, BathFullCount, FpSingleStory, FpMultiStory, FpFreestanding, FpAdditional, YrBuilt, YrRenovated, PcntComplete, Obsolescence, PcntNetCondition, Condition, AddnlCost, IngestedOn) " +
+                $"values ($Id, $Major, $Minor, $ParcelNumber, $BldgNbr, $NbrLivingUnits, $Address, $BuildingNumber, $Fraction, $DirectionPrefix, $StreetName, $StreetType, $DirectionSuffix, $ZipCode, $Stories, $BldgGrade, $BldgGradeVar, $SqFt1stFloor, $SqFtHalfFloor, $SqFt2ndFloor, $SqFtUpperFloor, $SqFtUnfinFull, $SqFtUnfinHalf, $SqFtTotLiving, $SqFtTotBasement, $SqFtFinBasement, $FinBasementGrade, $SqFtGarageBasement, $SqFtGarageAttached, $DaylightBasement, $SqFtOpenPorch, $SqFtEnclosedPorch, $SqFtDeck, $HeatSystem, $HeatSource, $BrickStone, $ViewUtilization, $Bedrooms, $BathHalfCount, $Bath3qtrCount, $BathFullCount, $FpSingleStory, $FpMultiStory, $FpFreestanding, $FpAdditional, $YrBuilt, $YrRenovated, $PcntComplete, $Obsolescence, $PcntNetCondition, $Condition, $AddnlCost, $IngestedOn);";
+
+            var Id = command.CreateParameter();
+            Id.ParameterName = "$Id";
+            command.Parameters.Add(Id);
+
+            var Major = command.CreateParameter();
+            Major.ParameterName = "$Major";
+            command.Parameters.Add(Major);
+
+            var Minor = command.CreateParameter();
+            Minor.ParameterName = "$Minor";
+            command.Parameters.Add(Minor);
+
+            var ParcelNumber = command.CreateParameter();
+            ParcelNumber.ParameterName = "$ParcelNumber";
+            command.Parameters.Add(ParcelNumber);
+
+            var BldgNbr = command.CreateParameter();
+            BldgNbr.ParameterName = "$BldgNbr";
+            command.Parameters.Add(BldgNbr);
+
+            var NbrLivingUnits = command.CreateParameter();
+            NbrLivingUnits.ParameterName = "$NbrLivingUnits";
+            command.Parameters.Add(NbrLivingUnits);
+
+            var Address = command.CreateParameter();
+            Address.ParameterName = "$Address";
+            command.Parameters.Add(Address);
+
+            var BuildingNumber = command.CreateParameter();
+            BuildingNumber.ParameterName = "$BuildingNumber";
+            command.Parameters.Add(BuildingNumber);
+
+            var Fraction = command.CreateParameter();
+            Fraction.ParameterName = "$Fraction";
+            command.Parameters.Add(Fraction);
+
+            var DirectionPrefix = command.CreateParameter();
+            DirectionPrefix.ParameterName = "$DirectionPrefix";
+            command.Parameters.Add(DirectionPrefix);
+
+            var StreetName = command.CreateParameter();
+            StreetName.ParameterName = "$StreetName";
+            command.Parameters.Add(StreetName);
+
+            var StreetType = command.CreateParameter();
+            StreetType.ParameterName = "$StreetType";
+            command.Parameters.Add(StreetType);
+
+            var DirectionSuffix = command.CreateParameter();
+            DirectionSuffix.ParameterName = "$DirectionSuffix";
+            command.Parameters.Add(DirectionSuffix);
+
+            var ZipCode = command.CreateParameter();
+            ZipCode.ParameterName = "$ZipCode";
+            command.Parameters.Add(ZipCode);
+
+            var Stories = command.CreateParameter();
+            Stories.ParameterName = "$Stories";
+            command.Parameters.Add(Stories);
+
+            var BldgGrade = command.CreateParameter();
+            BldgGrade.ParameterName = "$BldgGrade";
+            command.Parameters.Add(BldgGrade);
+
+            var BldgGradeVar = command.CreateParameter();
+            BldgGradeVar.ParameterName = "$BldgGradeVar";
+            command.Parameters.Add(BldgGradeVar);
+
+            var SqFt1stFloor = command.CreateParameter();
+            SqFt1stFloor.ParameterName = "$SqFt1stFloor";
+            command.Parameters.Add(SqFt1stFloor);
+
+            var SqFtHalfFloor = command.CreateParameter();
+            SqFtHalfFloor.ParameterName = "$SqFtHalfFloor";
+            command.Parameters.Add(SqFtHalfFloor);
+
+            var SqFt2ndFloor = command.CreateParameter();
+            SqFt2ndFloor.ParameterName = "$SqFt2ndFloor";
+            command.Parameters.Add(SqFt2ndFloor);
+
+            var SqFtUpperFloor = command.CreateParameter();
+            SqFtUpperFloor.ParameterName = "$SqFtUpperFloor";
+            command.Parameters.Add(SqFtUpperFloor);
+
+            var SqFtUnfinFull = command.CreateParameter();
+            SqFtUnfinFull.ParameterName = "$SqFtUnfinFull";
+            command.Parameters.Add(SqFtUnfinFull);
+
+            var SqFtUnfinHalf = command.CreateParameter();
+            SqFtUnfinHalf.ParameterName = "$SqFtUnfinHalf";
+            command.Parameters.Add(SqFtUnfinHalf);
+
+            var SqFtTotLiving = command.CreateParameter();
+            SqFtTotLiving.ParameterName = "$SqFtTotLiving";
+            command.Parameters.Add(SqFtTotLiving);
+
+            var SqFtTotBasement = command.CreateParameter();
+            SqFtTotBasement.ParameterName = "$SqFtTotBasement";
+            command.Parameters.Add(SqFtTotBasement);
+
+            var SqFtFinBasement = command.CreateParameter();
+            SqFtFinBasement.ParameterName = "$SqFtFinBasement";
+            command.Parameters.Add(SqFtFinBasement);
+
+            var FinBasementGrade = command.CreateParameter();
+            FinBasementGrade.ParameterName = "$FinBasementGrade";
+            command.Parameters.Add(FinBasementGrade);
+
+            var SqFtGarageBasement = command.CreateParameter();
+            SqFtGarageBasement.ParameterName = "$SqFtGarageBasement";
+            command.Parameters.Add(SqFtGarageBasement);
+
+            var SqFtGarageAttached = command.CreateParameter();
+            SqFtGarageAttached.ParameterName = "$SqFtGarageAttached";
+            command.Parameters.Add(SqFtGarageAttached);
+
+            var DaylightBasement = command.CreateParameter();
+            DaylightBasement.ParameterName = "$DaylightBasement";
+            command.Parameters.Add(DaylightBasement);
+
+            var SqFtOpenPorch = command.CreateParameter();
+            SqFtOpenPorch.ParameterName = "$SqFtOpenPorch";
+            command.Parameters.Add(SqFtOpenPorch);
+
+            var SqFtEnclosedPorch = command.CreateParameter();
+            SqFtEnclosedPorch.ParameterName = "$SqFtEnclosedPorch";
+            command.Parameters.Add(SqFtEnclosedPorch);
+
+            var SqFtDeck = command.CreateParameter();
+            SqFtDeck.ParameterName = "$SqFtDeck";
+            command.Parameters.Add(SqFtDeck);
+
+            var HeatSystem = command.CreateParameter();
+            HeatSystem.ParameterName = "$HeatSystem";
+            command.Parameters.Add(HeatSystem);
+
+            var HeatSource = command.CreateParameter();
+            HeatSource.ParameterName = "$HeatSource";
+            command.Parameters.Add(HeatSource);
+
+            var BrickStone = command.CreateParameter();
+            BrickStone.ParameterName = "$BrickStone";
+            command.Parameters.Add(BrickStone);
+
+            var ViewUtilization = command.CreateParameter();
+            ViewUtilization.ParameterName = "$ViewUtilization";
+            command.Parameters.Add(ViewUtilization);
+
+            var Bedrooms = command.CreateParameter();
+            Bedrooms.ParameterName = "$Bedrooms";
+            command.Parameters.Add(Bedrooms);
+
+            var BathHalfCount = command.CreateParameter();
+            BathHalfCount.ParameterName = "$BathHalfCount";
+            command.Parameters.Add(BathHalfCount);
+
+            var Bath3qtrCount = command.CreateParameter();
+            Bath3qtrCount.ParameterName = "$Bath3qtrCount";
+            command.Parameters.Add(Bath3qtrCount);
+
+            var BathFullCount = command.CreateParameter();
+            BathFullCount.ParameterName = "$BathFullCount";
+            command.Parameters.Add(BathFullCount);
+
+            var FpSingleStory = command.CreateParameter();
+            FpSingleStory.ParameterName = "$FpSingleStory";
+            command.Parameters.Add(FpSingleStory);
+
+            var FpMultiStory = command.CreateParameter();
+            FpMultiStory.ParameterName = "$FpMultiStory";
+            command.Parameters.Add(FpMultiStory);
+
+            var FpFreestanding = command.CreateParameter();
+            FpFreestanding.ParameterName = "$FpFreestanding";
+            command.Parameters.Add(FpFreestanding);
+
+            var FpAdditional = command.CreateParameter();
+            FpAdditional.ParameterName = "$FpAdditional";
+            command.Parameters.Add(FpAdditional);
+
+            var YrBuilt = command.CreateParameter();
+            YrBuilt.ParameterName = "$YrBuilt";
+            command.Parameters.Add(YrBuilt);
+
+            var YrRenovated = command.CreateParameter();
+            YrRenovated.ParameterName = "$YrRenovated";
+            command.Parameters.Add(YrRenovated);
+
+            var PcntComplete = command.CreateParameter();
+            PcntComplete.ParameterName = "$PcntComplete";
+            command.Parameters.Add(PcntComplete);
+
+            var Obsolescence = command.CreateParameter();
+            Obsolescence.ParameterName = "$Obsolescence";
+            command.Parameters.Add(Obsolescence);
+
+            var PcntNetCondition = command.CreateParameter();
+            PcntNetCondition.ParameterName = "$PcntNetCondition";
+            command.Parameters.Add(PcntNetCondition);
+
+            var Condition = command.CreateParameter();
+            Condition.ParameterName = "$Condition";
+            command.Parameters.Add(Condition);
+
+            var AddnlCost = command.CreateParameter();
+            AddnlCost.ParameterName = "$AddnlCost";
+            command.Parameters.Add(AddnlCost);
+
+            var IngestedOn = command.CreateParameter();
+            IngestedOn.ParameterName = "$IngestedOn";
+            command.Parameters.Add(IngestedOn);
+
+            await foreach (var record in records)
             {
-                csv.Read();
-                csv.ReadHeader();
+                record.Id = Guid.NewGuid();
+                record.IngestedOn = DateTime.Now;
+                record.TranslateFieldsUsingLookupsToText();
 
-                while (csv.Read())
-                {
-                    var record = csv.GetRecord<ResidentialBuilding>();
-                    record.Id = Guid.NewGuid();
-                    record.IngestedOn = DateTime.Now;
-                    record.TranslateFieldsUsingLookupsToText();
+                Id.Value = record.Id;
+                Major.Value = record.Major;
+                Minor.Value = record.Minor;
+                ParcelNumber.Value = record.ParcelNumber;
+                BldgNbr.Value = record.BldgNbr;
+                NbrLivingUnits.Value = record.NbrLivingUnits;
+                Address.Value = record.Address;
+                BuildingNumber.Value = record.BuildingNumber;
+                Fraction.Value = string.IsNullOrWhiteSpace(record?.Fraction) ? DBNull.Value : record.Fraction;
+                DirectionPrefix.Value = record.DirectionPrefix;
+                StreetName.Value = record.StreetName;
+                StreetType.Value = record.StreetType;
+                DirectionSuffix.Value = string.IsNullOrWhiteSpace(record?.DirectionSuffix) ? DBNull.Value : record.DirectionSuffix;
+                ZipCode.Value = string.IsNullOrWhiteSpace(record?.ZipCode) ? DBNull.Value : record.ZipCode;
+                Stories.Value = record.Stories;
+                BldgGrade.Value = record.BldgGrade;
+                BldgGradeVar.Value = record.BldgGradeVar;
+                SqFt1stFloor.Value = record.SqFt1stFloor;
+                SqFtHalfFloor.Value = record.SqFtHalfFloor;
+                SqFt2ndFloor.Value = record.SqFt2ndFloor;
+                SqFtUpperFloor.Value = record.SqFtUpperFloor;
+                SqFtUnfinFull.Value = record.SqFtUnfinFull;
+                SqFtUnfinHalf.Value = record.SqFtUnfinHalf;
+                SqFtTotLiving.Value = record.SqFtTotLiving;
+                SqFtTotBasement.Value = record.SqFtTotBasement;
+                SqFtFinBasement.Value = record.SqFtFinBasement;
+                FinBasementGrade.Value = string.IsNullOrWhiteSpace(record?.FinBasementGrade) ? DBNull.Value : record.FinBasementGrade;
+                SqFtGarageBasement.Value = record.SqFtGarageBasement;
+                SqFtGarageAttached.Value = record.SqFtGarageAttached;
+                DaylightBasement.Value = string.IsNullOrWhiteSpace(record?.DaylightBasement) ? DBNull.Value : record.DaylightBasement;
+                SqFtOpenPorch.Value = record.SqFtOpenPorch;
+                SqFtEnclosedPorch.Value = record.SqFtEnclosedPorch;
+                SqFtDeck.Value = record.SqFtDeck;
+                HeatSystem.Value = string.IsNullOrWhiteSpace(record?.HeatSystem) ? DBNull.Value : record.HeatSystem;
+                HeatSource.Value = string.IsNullOrWhiteSpace(record?.HeatSource) ? DBNull.Value : record.HeatSource;
+                BrickStone.Value = record.BrickStone;
+                ViewUtilization.Value = string.IsNullOrWhiteSpace(record?.ViewUtilization) ? DBNull.Value : record.ViewUtilization;
+                Bedrooms.Value = record.Bedrooms;
+                BathHalfCount.Value = record.BathHalfCount;
+                Bath3qtrCount.Value = record.Bath3qtrCount;
+                BathFullCount.Value = record.BathFullCount;
+                FpSingleStory.Value = record.FpSingleStory;
+                FpMultiStory.Value = record.FpMultiStory;
+                FpFreestanding.Value = record.FpFreestanding;
+                FpAdditional.Value = record.FpAdditional;
+                YrBuilt.Value = record.YrBuilt;
+                YrRenovated.Value = record.YrRenovated;
+                PcntComplete.Value = record.PcntComplete;
+                Obsolescence.Value = record.Obsolescence;
+                PcntNetCondition.Value = record.PcntNetCondition;
+                Condition.Value = record.Condition;
+                AddnlCost.Value = record.AddnlCost;
+                IngestedOn.Value = record.IngestedOn;
 
-                    var command = context.Database.GetDbConnection().CreateCommand();
-                    command.CommandText =
-                        $"insert into ResidentialBuildings (Id, Major, Minor, ParcelNumber, BldgNbr, NbrLivingUnits, Address, BuildingNumber, Fraction, DirectionPrefix, StreetName, StreetType, DirectionSuffix, ZipCode, Stories, BldgGrade, BldgGradeVar, SqFt1stFloor, SqFtHalfFloor, SqFt2ndFloor, SqFtUpperFloor, SqFtUnfinFull, SqFtUnfinHalf, SqFtTotLiving, SqFtTotBasement, SqFtFinBasement, FinBasementGrade, SqFtGarageBasement, SqFtGarageAttached, DaylightBasement, SqFtOpenPorch, SqFtEnclosedPorch, SqFtDeck, HeatSystem, HeatSource, BrickStone, ViewUtilization, Bedrooms, BathHalfCount, Bath3qtrCount, BathFullCount, FpSingleStory, FpMultiStory, FpFreestanding, FpAdditional, YrBuilt, YrRenovated, PcntComplete, Obsolescence, PcntNetCondition, Condition, AddnlCost, IngestedOn) " +
-                        $"values ($Id, $Major, $Minor, $ParcelNumber, $BldgNbr, $NbrLivingUnits, $Address, $BuildingNumber, $Fraction, $DirectionPrefix, $StreetName, $StreetType, $DirectionSuffix, $ZipCode, $Stories, $BldgGrade, $BldgGradeVar, $SqFt1stFloor, $SqFtHalfFloor, $SqFt2ndFloor, $SqFtUpperFloor, $SqFtUnfinFull, $SqFtUnfinHalf, $SqFtTotLiving, $SqFtTotBasement, $SqFtFinBasement, $FinBasementGrade, $SqFtGarageBasement, $SqFtGarageAttached, $DaylightBasement, $SqFtOpenPorch, $SqFtEnclosedPorch, $SqFtDeck, $HeatSystem, $HeatSource, $BrickStone, $ViewUtilization, $Bedrooms, $BathHalfCount, $Bath3qtrCount, $BathFullCount, $FpSingleStory, $FpMultiStory, $FpFreestanding, $FpAdditional, $YrBuilt, $YrRenovated, $PcntComplete, $Obsolescence, $PcntNetCondition, $Condition, $AddnlCost, $IngestedOn);";
-
-                    var Id = command.CreateParameter();
-                    Id.ParameterName = "$Id";
-                    command.Parameters.Add(Id);
-                    Id.Value = record.Id;
-
-                    var Major = command.CreateParameter();
-                    Major.ParameterName = "$Major";
-                    command.Parameters.Add(Major);
-                    Major.Value = record.Major;
-
-                    var Minor = command.CreateParameter();
-                    Minor.ParameterName = "$Minor";
-                    command.Parameters.Add(Minor);
-                    Minor.Value = record.Minor;
-
-                    var ParcelNumber = command.CreateParameter();
-                    ParcelNumber.ParameterName = "$ParcelNumber";
-                    command.Parameters.Add(ParcelNumber);
-                    ParcelNumber.Value = record.ParcelNumber;
-
-                    var BldgNbr = command.CreateParameter();
-                    BldgNbr.ParameterName = "$BldgNbr";
-                    command.Parameters.Add(BldgNbr);
-                    BldgNbr.Value = record.BldgNbr;
-
-                    var NbrLivingUnits = command.CreateParameter();
-                    NbrLivingUnits.ParameterName = "$NbrLivingUnits";
-                    command.Parameters.Add(NbrLivingUnits);
-                    NbrLivingUnits.Value = record.NbrLivingUnits;
-
-                    var Address = command.CreateParameter();
-                    Address.ParameterName = "$Address";
-                    command.Parameters.Add(Address);
-                    Address.Value = record.Address;
-
-                    var BuildingNumber = command.CreateParameter();
-                    BuildingNumber.ParameterName = "$BuildingNumber";
-                    command.Parameters.Add(BuildingNumber);
-                    BuildingNumber.Value = record.BuildingNumber;
-
-                    var Fraction = command.CreateParameter();
-                    Fraction.ParameterName = "$Fraction";
-                    command.Parameters.Add(Fraction);
-                    Fraction.Value = string.IsNullOrWhiteSpace(record?.Fraction) ? DBNull.Value : record.Fraction;
-
-                    var DirectionPrefix = command.CreateParameter();
-                    DirectionPrefix.ParameterName = "$DirectionPrefix";
-                    command.Parameters.Add(DirectionPrefix);
-                    DirectionPrefix.Value = record.DirectionPrefix;
-
-                    var StreetName = command.CreateParameter();
-                    StreetName.ParameterName = "$StreetName";
-                    command.Parameters.Add(StreetName);
-                    StreetName.Value = record.StreetName;
-
-                    var StreetType = command.CreateParameter();
-                    StreetType.ParameterName = "$StreetType";
-                    command.Parameters.Add(StreetType);
-                    StreetType.Value = record.StreetType;
-
-                    var DirectionSuffix = command.CreateParameter();
-                    DirectionSuffix.ParameterName = "$DirectionSuffix";
-                    command.Parameters.Add(DirectionSuffix);
-                    DirectionSuffix.Value = string.IsNullOrWhiteSpace(record?.DirectionSuffix) ? DBNull.Value : record.DirectionSuffix;
-
-                    var ZipCode = command.CreateParameter();
-                    ZipCode.ParameterName = "$ZipCode";
-                    command.Parameters.Add(ZipCode);
-                    ZipCode.Value = string.IsNullOrWhiteSpace(record?.ZipCode) ? DBNull.Value : record.ZipCode;
-
-                    var Stories = command.CreateParameter();
-                    Stories.ParameterName = "$Stories";
-                    command.Parameters.Add(Stories);
-                    Stories.Value = record.Stories;
-
-                    var BldgGrade = command.CreateParameter();
-                    BldgGrade.ParameterName = "$BldgGrade";
-                    command.Parameters.Add(BldgGrade);
-                    BldgGrade.Value = record.BldgGrade;
-
-                    var BldgGradeVar = command.CreateParameter();
-                    BldgGradeVar.ParameterName = "$BldgGradeVar";
-                    command.Parameters.Add(BldgGradeVar);
-                    BldgGradeVar.Value = record.BldgGradeVar;
-
-                    var SqFt1stFloor = command.CreateParameter();
-                    SqFt1stFloor.ParameterName = "$SqFt1stFloor";
-                    command.Parameters.Add(SqFt1stFloor);
-                    SqFt1stFloor.Value = record.SqFt1stFloor;
-
-                    var SqFtHalfFloor = command.CreateParameter();
-                    SqFtHalfFloor.ParameterName = "$SqFtHalfFloor";
-                    command.Parameters.Add(SqFtHalfFloor);
-                    SqFtHalfFloor.Value = record.SqFtHalfFloor;
-
-                    var SqFt2ndFloor = command.CreateParameter();
-                    SqFt2ndFloor.ParameterName = "$SqFt2ndFloor";
-                    command.Parameters.Add(SqFt2ndFloor);
-                    SqFt2ndFloor.Value = record.SqFt2ndFloor;
-
-                    var SqFtUpperFloor = command.CreateParameter();
-                    SqFtUpperFloor.ParameterName = "$SqFtUpperFloor";
-                    command.Parameters.Add(SqFtUpperFloor);
-                    SqFtUpperFloor.Value = record.SqFtUpperFloor;
-
-                    var SqFtUnfinFull = command.CreateParameter();
-                    SqFtUnfinFull.ParameterName = "$SqFtUnfinFull";
-                    command.Parameters.Add(SqFtUnfinFull);
-                    SqFtUnfinFull.Value = record.SqFtUnfinFull;
-
-                    var SqFtUnfinHalf = command.CreateParameter();
-                    SqFtUnfinHalf.ParameterName = "$SqFtUnfinHalf";
-                    command.Parameters.Add(SqFtUnfinHalf);
-                    SqFtUnfinHalf.Value = record.SqFtUnfinHalf;
-
-                    var SqFtTotLiving = command.CreateParameter();
-                    SqFtTotLiving.ParameterName = "$SqFtTotLiving";
-                    command.Parameters.Add(SqFtTotLiving);
-                    SqFtTotLiving.Value = record.SqFtTotLiving;
-
-                    var SqFtTotBasement = command.CreateParameter();
-                    SqFtTotBasement.ParameterName = "$SqFtTotBasement";
-                    command.Parameters.Add(SqFtTotBasement);
-                    SqFtTotBasement.Value = record.SqFtTotBasement;
-
-                    var SqFtFinBasement = command.CreateParameter();
-                    SqFtFinBasement.ParameterName = "$SqFtFinBasement";
-                    command.Parameters.Add(SqFtFinBasement);
-                    SqFtFinBasement.Value = record.SqFtFinBasement;
-
-                    var FinBasementGrade = command.CreateParameter();
-                    FinBasementGrade.ParameterName = "$FinBasementGrade";
-                    command.Parameters.Add(FinBasementGrade);
-                    FinBasementGrade.Value = string.IsNullOrWhiteSpace(record?.FinBasementGrade) ? DBNull.Value : record.FinBasementGrade;
-
-                    var SqFtGarageBasement = command.CreateParameter();
-                    SqFtGarageBasement.ParameterName = "$SqFtGarageBasement";
-                    command.Parameters.Add(SqFtGarageBasement);
-                    SqFtGarageBasement.Value = record.SqFtGarageBasement;
-
-                    var SqFtGarageAttached = command.CreateParameter();
-                    SqFtGarageAttached.ParameterName = "$SqFtGarageAttached";
-                    command.Parameters.Add(SqFtGarageAttached);
-                    SqFtGarageAttached.Value = record.SqFtGarageAttached;
-
-                    var DaylightBasement = command.CreateParameter();
-                    DaylightBasement.ParameterName = "$DaylightBasement";
-                    command.Parameters.Add(DaylightBasement);
-                    DaylightBasement.Value = string.IsNullOrWhiteSpace(record?.DaylightBasement) ? DBNull.Value : record.DaylightBasement;
-
-                    var SqFtOpenPorch = command.CreateParameter();
-                    SqFtOpenPorch.ParameterName = "$SqFtOpenPorch";
-                    command.Parameters.Add(SqFtOpenPorch);
-                    SqFtOpenPorch.Value = record.SqFtOpenPorch;
-
-                    var SqFtEnclosedPorch = command.CreateParameter();
-                    SqFtEnclosedPorch.ParameterName = "$SqFtEnclosedPorch";
-                    command.Parameters.Add(SqFtEnclosedPorch);
-                    SqFtEnclosedPorch.Value = record.SqFtEnclosedPorch;
-
-                    var SqFtDeck = command.CreateParameter();
-                    SqFtDeck.ParameterName = "$SqFtDeck";
-                    command.Parameters.Add(SqFtDeck);
-                    SqFtDeck.Value = record.SqFtDeck;
-
-                    var HeatSystem = command.CreateParameter();
-                    HeatSystem.ParameterName = "$HeatSystem";
-                    command.Parameters.Add(HeatSystem);
-                    HeatSystem.Value = string.IsNullOrWhiteSpace(record?.HeatSystem) ? DBNull.Value : record.HeatSystem;
-
-                    var HeatSource = command.CreateParameter();
-                    HeatSource.ParameterName = "$HeatSource";
-                    command.Parameters.Add(HeatSource);
-                    HeatSource.Value = string.IsNullOrWhiteSpace(record?.HeatSource) ? DBNull.Value : record.HeatSource;
-
-                    var BrickStone = command.CreateParameter();
-                    BrickStone.ParameterName = "$BrickStone";
-                    command.Parameters.Add(BrickStone);
-                    BrickStone.Value = record.BrickStone;
-
-                    var ViewUtilization = command.CreateParameter();
-                    ViewUtilization.ParameterName = "$ViewUtilization";
-                    command.Parameters.Add(ViewUtilization);
-                    ViewUtilization.Value = string.IsNullOrWhiteSpace(record?.ViewUtilization) ? DBNull.Value : record.ViewUtilization;
-
-                    var Bedrooms = command.CreateParameter();
-                    Bedrooms.ParameterName = "$Bedrooms";
-                    command.Parameters.Add(Bedrooms);
-                    Bedrooms.Value = record.Bedrooms;
-
-                    var BathHalfCount = command.CreateParameter();
-                    BathHalfCount.ParameterName = "$BathHalfCount";
-                    command.Parameters.Add(BathHalfCount);
-                    BathHalfCount.Value = record.BathHalfCount;
-
-                    var Bath3qtrCount = command.CreateParameter();
-                    Bath3qtrCount.ParameterName = "$Bath3qtrCount";
-                    command.Parameters.Add(Bath3qtrCount);
-                    Bath3qtrCount.Value = record.Bath3qtrCount;
-
-                    var BathFullCount = command.CreateParameter();
-                    BathFullCount.ParameterName = "$BathFullCount";
-                    command.Parameters.Add(BathFullCount);
-                    BathFullCount.Value = record.BathFullCount;
-
-                    var FpSingleStory = command.CreateParameter();
-                    FpSingleStory.ParameterName = "$FpSingleStory";
-                    command.Parameters.Add(FpSingleStory);
-                    FpSingleStory.Value = record.FpSingleStory;
-
-                    var FpMultiStory = command.CreateParameter();
-                    FpMultiStory.ParameterName = "$FpMultiStory";
-                    command.Parameters.Add(FpMultiStory);
-                    FpMultiStory.Value = record.FpMultiStory;
-
-                    var FpFreestanding = command.CreateParameter();
-                    FpFreestanding.ParameterName = "$FpFreestanding";
-                    command.Parameters.Add(FpFreestanding);
-                    FpFreestanding.Value = record.FpFreestanding;
-
-                    var FpAdditional = command.CreateParameter();
-                    FpAdditional.ParameterName = "$FpAdditional";
-                    command.Parameters.Add(FpAdditional);
-                    FpAdditional.Value = record.FpAdditional;
-
-                    var YrBuilt = command.CreateParameter();
-                    YrBuilt.ParameterName = "$YrBuilt";
-                    command.Parameters.Add(YrBuilt);
-                    YrBuilt.Value = record.YrBuilt;
-
-                    var YrRenovated = command.CreateParameter();
-                    YrRenovated.ParameterName = "$YrRenovated";
-                    command.Parameters.Add(YrRenovated);
-                    YrRenovated.Value = record.YrRenovated;
-
-                    var PcntComplete = command.CreateParameter();
-                    PcntComplete.ParameterName = "$PcntComplete";
-                    command.Parameters.Add(PcntComplete);
-                    PcntComplete.Value = record.PcntComplete;
-
-                    var Obsolescence = command.CreateParameter();
-                    Obsolescence.ParameterName = "$Obsolescence";
-                    command.Parameters.Add(Obsolescence);
-                    Obsolescence.Value = record.Obsolescence;
-
-                    var PcntNetCondition = command.CreateParameter();
-                    PcntNetCondition.ParameterName = "$PcntNetCondition";
-                    command.Parameters.Add(PcntNetCondition);
-                    PcntNetCondition.Value = record.PcntNetCondition;
-
-                    var Condition = command.CreateParameter();
-                    Condition.ParameterName = "$Condition";
-                    command.Parameters.Add(Condition);
-                    Condition.Value = record.Condition;
-
-                    var AddnlCost = command.CreateParameter();
-                    AddnlCost.ParameterName = "$AddnlCost";
-                    command.Parameters.Add(AddnlCost);
-                    AddnlCost.Value = record.AddnlCost;
-
-                    var IngestedOn = command.CreateParameter();
-                    IngestedOn.ParameterName = "$IngestedOn";
-                    command.Parameters.Add(IngestedOn);
-                    IngestedOn.Value = record.IngestedOn;
-
-                    await command.ExecuteNonQueryAsync();
-                }
-                await transaction.CommitAsync();
+                await command.ExecuteNonQueryAsync();
             }
+
+            await transaction.CommitAsync();
             return true;
         }
 

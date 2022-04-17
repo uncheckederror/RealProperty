@@ -7,7 +7,6 @@ using Flurl.Http;
 using Microsoft.EntityFrameworkCore;
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
@@ -19,10 +18,12 @@ namespace eRealProperty.Models
     public class TaxLevy
     {
         [Key]
+        [Ignore]
         public Guid Id { get; set; }
         public string DistrictAbbrev { get; set; }
         public string LevyCode { get; set; }
         public string DistrictName { get; set; }
+        [Ignore]
         public DateTime IngestedOn { get; set; }
 
         public static async Task<bool> IngestAsync(eRealPropertyContext context, string zipUrl, string fileName)
@@ -54,58 +55,56 @@ namespace eRealProperty.Models
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 NewLine = Environment.NewLine,
-                MissingFieldFound = null
+                MissingFieldFound = null,
+                CacheFields = true
             };
 
-            using (var reader = new StreamReader(pathToCSV))
-            using (var csv = new CsvReader(reader, config))
+            using var transaction = await context.Database.BeginTransactionAsync();
+            using var reader = new StreamReader(pathToCSV);
+            using var csv = new CsvReader(reader, config);
+
+            var command = context.Database.GetDbConnection().CreateCommand();
+            command.CommandText =
+                $"insert into LevyCodes (Id, DistrictAbbrev, LevyCode, DistrictName, IngestedOn) " +
+                $"values ($Id, $DistrictAbbrev, $LevyCode, $DistrictName, $IngestedOn);";
+
+            var Id = command.CreateParameter();
+            Id.ParameterName = "$Id";
+            command.Parameters.Add(Id);
+
+            var DistrictAbbrev = command.CreateParameter();
+            DistrictAbbrev.ParameterName = "$DistrictAbbrev";
+            command.Parameters.Add(DistrictAbbrev);
+
+            var LevyCode = command.CreateParameter();
+            LevyCode.ParameterName = "$LevyCode";
+            command.Parameters.Add(LevyCode);
+
+            var DistrictName = command.CreateParameter();
+            DistrictName.ParameterName = "$DistrictName";
+            command.Parameters.Add(DistrictName);
+
+            var IngestedOn = command.CreateParameter();
+            IngestedOn.ParameterName = "$IngestedOn";
+            command.Parameters.Add(IngestedOn);
+
+            var records = csv.GetRecordsAsync<TaxLevy>();
+
+            await foreach (var record in records)
             {
-                csv.Read();
-                csv.ReadHeader();
+                record.Id = Guid.NewGuid();
+                record.IngestedOn = DateTime.Now;
 
-                using var transaction = await context.Database.BeginTransactionAsync();
+                Id.Value = record.Id;
+                DistrictAbbrev.Value = record.DistrictAbbrev;
+                LevyCode.Value = record.LevyCode;
+                DistrictName.Value = record.DistrictName;
+                IngestedOn.Value = record.IngestedOn;
 
-                while (csv.Read())
-                {
-                    var record = csv.GetRecord<TaxLevy>();
-                    record.Id = Guid.NewGuid();
-                    record.IngestedOn = DateTime.Now;
-
-                    var command = context.Database.GetDbConnection().CreateCommand();
-                    command.CommandText =
-                        $"insert into LevyCodes (Id, DistrictAbbrev, LevyCode, DistrictName, IngestedOn) " +
-                        $"values ($Id, $DistrictAbbrev, $LevyCode, $DistrictName, $IngestedOn);";
-
-                    var Id = command.CreateParameter();
-                    Id.ParameterName = "$Id";
-                    command.Parameters.Add(Id);
-                    Id.Value = record.Id;
-
-                    var DistrictAbbrev = command.CreateParameter();
-                    DistrictAbbrev.ParameterName = "$DistrictAbbrev";
-                    command.Parameters.Add(DistrictAbbrev);
-                    DistrictAbbrev.Value = record.DistrictAbbrev;
-
-                    var LevyCode = command.CreateParameter();
-                    LevyCode.ParameterName = "$LevyCode";
-                    command.Parameters.Add(LevyCode);
-                    LevyCode.Value = record.LevyCode;
-
-                    var DistrictName = command.CreateParameter();
-                    DistrictName.ParameterName = "$DistrictName";
-                    command.Parameters.Add(DistrictName);
-                    DistrictName.Value = record.DistrictName;
-
-                    var IngestedOn = command.CreateParameter();
-                    IngestedOn.ParameterName = "$IngestedOn";
-                    command.Parameters.Add(IngestedOn);
-                    IngestedOn.Value = record.IngestedOn;
-
-                    await command.ExecuteNonQueryAsync();
-                }
-
-                await transaction.CommitAsync();
+                await command.ExecuteNonQueryAsync();
             }
+
+            await transaction.CommitAsync();
             return true;
         }
     }

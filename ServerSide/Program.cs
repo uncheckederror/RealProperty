@@ -148,6 +148,32 @@ namespace ServerSide
                 }
             }
 
+            if (!await db.Reviews.AnyAsync())
+            {
+                Log.Information("Ingesting Reviews.");
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM Reviews;");
+                var years = await Review.IngestAsync(db, config["DataSources:ReviewHistory"], config["DataSources:ReviewHistoryFileName"]);
+                if (years)
+                {
+                    Log.Information($"Ingested {await db.Reviews.CountAsync()} Reviews.");
+                }
+                else
+                {
+                    Log.Fatal("Failed to ingest Reviews.");
+                }
+
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM ReviewDescriptions;");
+                years = await ReviewDescription.IngestAsync(db, config["DataSources:ReviewHistory"], config["DataSources:ReviewDescriptionFileName"]);
+                if (years)
+                {
+                    Log.Information($"Ingested {await db.ReviewDescriptions.CountAsync()} Review Descriptions.");
+                }
+                else
+                {
+                    Log.Fatal("Failed to ingest Review Descriptions.");
+                }
+            }
+
             try
             {
                 Log.Information("Starting web host");

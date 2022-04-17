@@ -76,7 +76,7 @@ namespace ServerSide.Pages
 
                 Parcels = await _context.PropertyParcels.Where(x => x.ParcelNumber == parcelQuery).AsNoTracking().ToListAsync();
 
-                TaxYears = await _context.RealPropertyAccountTaxYears.Where(x => x.ParcelNumber == parcelQuery).AsNoTracking().ToListAsync();
+                TaxYears = await _context.RealPropertyAccountTaxYears.Where(x => x.ParcelNumber == parcelQuery).OrderByDescending(x => x.TaxYr).AsNoTracking().ToListAsync();
 
                 ResidentialBuildings = await _context.ResidentialBuildings.Where(x => x.ParcelNumber == parcelQuery).AsNoTracking().ToListAsync();
 

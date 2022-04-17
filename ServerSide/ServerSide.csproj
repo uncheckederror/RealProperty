@@ -22,4 +22,8 @@
     <ProjectReference Include="..\eRealProperty\eRealProperty.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pages\King\" />
+  </ItemGroup>
+
 </Project>

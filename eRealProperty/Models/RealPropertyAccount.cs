@@ -1,26 +1,29 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using CsvHelper.Configuration.Attributes;
+
+using Flurl.Http;
 
 using Microsoft.EntityFrameworkCore;
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
-using Flurl.Http;
 
 namespace eRealProperty.Models
 {
     public class RealPropertyAccount
     {
         [Key]
+        [Ignore]
         public Guid Id { get; set; }
         public string AcctNbr { get; set; }
         public string Major { get; set; }
         public string Minor { get; set; }
+        [Ignore]
         public string ParcelNumber { get; set; }
         public string AttnLine { get; set; }
         public string AddrLine { get; set; }
@@ -35,8 +38,10 @@ namespace eRealProperty.Models
         public string ApprImpsVal { get; set; }
         public string TaxableLandVal { get; set; }
         public string TaxableImpsVal { get; set; }
+        [Ignore]
         public DateTime IngestedOn { get; set; }
         // From the legal description file.
+        [Ignore]
         public string LegalDescription { get; set; }
 
         public static async Task<bool> IngestAsync(eRealPropertyContext context, string zipUrl, string fileName)
@@ -68,147 +73,127 @@ namespace eRealProperty.Models
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 NewLine = Environment.NewLine,
-                MissingFieldFound = null
+                MissingFieldFound = null,
+                CacheFields = true
             };
 
-            using (var reader = new StreamReader(pathToCSV))
-            using (var csv = new CsvReader(reader, config))
+            using var transaction = await context.Database.BeginTransactionAsync();
+            using var reader = new StreamReader(pathToCSV);
+            using var csv = new CsvReader(reader, config);
+
+            var command = context.Database.GetDbConnection().CreateCommand();
+            command.CommandText =
+                $"insert into RealPropertyAccounts (Id, AcctNbr, Major, Minor, ParcelNumber, AttnLine, AddrLine, CityState, ZipCode, LevyCode, TaxStat, BillYr, NewConstructionFlag, TaxValReason, ApprLandVal, ApprImpsVal, TaxableLandVal, TaxableImpsVal, IngestedOn) " +
+                $"values ($Id, $AcctNbr, $Major, $Minor, $ParcelNumber, $AttnLine, $AddrLine, $CityState, $ZipCode, $LevyCode, $TaxStat, $BillYr, $NewConstructionFlag, $TaxValReason, $ApprImpsVal, $ApprImpsVal, $TaxableLandVal, $TaxableImpsVal, $IngestedOn);";
+
+            var Id = command.CreateParameter();
+            Id.ParameterName = "$Id";
+            command.Parameters.Add(Id);
+
+            var AcctNbr = command.CreateParameter();
+            AcctNbr.ParameterName = "$AcctNbr";
+            command.Parameters.Add(AcctNbr);
+
+            var Major = command.CreateParameter();
+            Major.ParameterName = "$Major";
+            command.Parameters.Add(Major);
+
+            var Minor = command.CreateParameter();
+            Minor.ParameterName = "$Minor";
+            command.Parameters.Add(Minor);
+
+            var ParcelNumber = command.CreateParameter();
+            ParcelNumber.ParameterName = "$ParcelNumber";
+            command.Parameters.Add(ParcelNumber);
+
+            var AttnLine = command.CreateParameter();
+            AttnLine.ParameterName = "$AttnLine";
+            command.Parameters.Add(AttnLine);
+
+            var AddrLine = command.CreateParameter();
+            AddrLine.ParameterName = "$AddrLine";
+            command.Parameters.Add(AddrLine);
+
+            var CityState = command.CreateParameter();
+            CityState.ParameterName = "$CityState";
+            command.Parameters.Add(CityState);
+
+            var ZipCode = command.CreateParameter();
+            ZipCode.ParameterName = "$ZipCode";
+            command.Parameters.Add(ZipCode);
+
+            var LevyCode = command.CreateParameter();
+            LevyCode.ParameterName = "$LevyCode";
+            command.Parameters.Add(LevyCode);
+
+            var TaxStat = command.CreateParameter();
+            TaxStat.ParameterName = "$TaxStat";
+            command.Parameters.Add(TaxStat);
+
+            var BillYr = command.CreateParameter();
+            BillYr.ParameterName = "$BillYr";
+            command.Parameters.Add(BillYr);
+
+            var NewConstructionFlag = command.CreateParameter();
+            NewConstructionFlag.ParameterName = "$NewConstructionFlag";
+            command.Parameters.Add(NewConstructionFlag);
+
+            var TaxValReason = command.CreateParameter();
+            TaxValReason.ParameterName = "$TaxValReason";
+            command.Parameters.Add(TaxValReason);
+
+            var ApprLandVal = command.CreateParameter();
+            ApprLandVal.ParameterName = "$ApprLandVal";
+            command.Parameters.Add(ApprLandVal);
+
+            var ApprImpsVal = command.CreateParameter();
+            ApprImpsVal.ParameterName = "$ApprImpsVal";
+            command.Parameters.Add(ApprImpsVal);
+
+            var TaxableLandVal = command.CreateParameter();
+            TaxableLandVal.ParameterName = "$TaxableLandVal";
+            command.Parameters.Add(TaxableLandVal);
+
+            var TaxableImpsVal = command.CreateParameter();
+            TaxableImpsVal.ParameterName = "$TaxableImpsVal";
+            command.Parameters.Add(TaxableImpsVal);
+
+            var IngestedOn = command.CreateParameter();
+            IngestedOn.ParameterName = "$IngestedOn";
+            command.Parameters.Add(IngestedOn);
+
+            var records = csv.GetRecordsAsync<RealPropertyAccount>();
+
+            await foreach (var record in records)
             {
-                csv.Read();
-                csv.ReadHeader();
+                record.Id = Guid.NewGuid();
+                record.IngestedOn = DateTime.Now;
+                record.TranslateFieldsUsingLookupsToText();
 
-                var transaction = context.Database.BeginTransaction();
-                var record = new RealPropertyAccount();
+                Id.Value = record.Id;
+                AcctNbr.Value = record.AcctNbr;
+                Major.Value = record.Major;
+                Minor.Value = record.Minor;
+                ParcelNumber.Value = record.ParcelNumber;
+                AttnLine.Value = string.IsNullOrWhiteSpace(record?.AttnLine) ? DBNull.Value : record.AttnLine;
+                AddrLine.Value = record.AddrLine;
+                CityState.Value = record.CityState;
+                ZipCode.Value = record.ZipCode;
+                LevyCode.Value = record.LevyCode;
+                TaxStat.Value = record.TaxStat;
+                BillYr.Value = record.BillYr;
+                NewConstructionFlag.Value = record.NewConstructionFlag;
+                TaxValReason.Value = string.IsNullOrWhiteSpace(record?.TaxValReason) ? DBNull.Value : record.TaxValReason;
+                ApprLandVal.Value = record.ApprLandVal;
+                ApprImpsVal.Value = record.ApprImpsVal;
+                TaxableLandVal.Value = record.TaxableLandVal;
+                TaxableImpsVal.Value = record.TaxableImpsVal;
+                IngestedOn.Value = record.IngestedOn;
 
-                while (csv.Read())
-                {
-                    record.Id = Guid.NewGuid();
-                    record.AcctNbr = csv.GetField<string>("AcctNbr");
-                    record.AddrLine = csv.GetField<string>("AddrLine");
-                    record.ApprImpsVal = csv.GetField<string>("ApprImpsVal");
-                    record.ApprLandVal = csv.GetField<string>("ApprLandVal");
-                    record.AttnLine = csv.GetField<string>("AttnLine");
-                    record.BillYr = csv.GetField<int>("BillYr");
-                    record.CityState = csv.GetField<string>("CityState");
-                    record.TaxStat = csv.GetField<string>("TaxStat");
-                    record.LevyCode = csv.GetField<string>("LevyCode");
-                    record.Major = csv.GetField<string>("Major");
-                    record.Minor = csv.GetField<string>("Minor");
-                    record.NewConstructionFlag = csv.GetField<string>("NewConstructionFlag");
-                    record.TaxableImpsVal = csv.GetField<string>("TaxableImpsVal");
-                    record.TaxableLandVal = csv.GetField<string>("TaxableLandVal");
-                    record.TaxValReason = csv.GetField<string>("TaxValReason");
-                    record.ZipCode = csv.GetField<string>("ZipCode");
-                    record.IngestedOn = DateTime.Now;
-
-                    record.TranslateFieldsUsingLookupsToText();
-
-                    var command = context.Database.GetDbConnection().CreateCommand();
-                    command.CommandText =
-                        $"insert into RealPropertyAccounts (Id, AcctNbr, Major, Minor, ParcelNumber, AttnLine, AddrLine, CityState, ZipCode, LevyCode, TaxStat, BillYr, NewConstructionFlag, TaxValReason, ApprLandVal, ApprImpsVal, TaxableLandVal, TaxableImpsVal, IngestedOn) " +
-                        $"values ($Id, $AcctNbr, $Major, $Minor, $ParcelNumber, $AttnLine, $AddrLine, $CityState, $ZipCode, $LevyCode, $TaxStat, $BillYr, $NewConstructionFlag, $TaxValReason, $ApprImpsVal, $ApprImpsVal, $TaxableLandVal, $TaxableImpsVal, $IngestedOn);";
-
-                    var Id = command.CreateParameter();
-                    Id.ParameterName = "$Id";
-                    command.Parameters.Add(Id);
-                    Id.Value = record.Id;
-
-                    var AcctNbr = command.CreateParameter();
-                    AcctNbr.ParameterName = "$AcctNbr";
-                    command.Parameters.Add(AcctNbr);
-                    AcctNbr.Value = record.AcctNbr;
-
-                    var Major = command.CreateParameter();
-                    Major.ParameterName = "$Major";
-                    command.Parameters.Add(Major);
-                    Major.Value = record.Major;
-
-                    var Minor = command.CreateParameter();
-                    Minor.ParameterName = "$Minor";
-                    command.Parameters.Add(Minor);
-                    Minor.Value = record.Minor;
-
-                    var ParcelNumber = command.CreateParameter();
-                    ParcelNumber.ParameterName = "$ParcelNumber";
-                    command.Parameters.Add(ParcelNumber);
-                    ParcelNumber.Value = record.ParcelNumber;
-
-                    var AttnLine = command.CreateParameter();
-                    AttnLine.ParameterName = "$AttnLine";
-                    command.Parameters.Add(AttnLine);
-                    AttnLine.Value = string.IsNullOrWhiteSpace(record?.AttnLine) ? DBNull.Value : record.AttnLine;
-
-                    var AddrLine = command.CreateParameter();
-                    AddrLine.ParameterName = "$AddrLine";
-                    command.Parameters.Add(AddrLine);
-                    AddrLine.Value = record.AddrLine;
-
-                    var CityState = command.CreateParameter();
-                    CityState.ParameterName = "$CityState";
-                    command.Parameters.Add(CityState);
-                    CityState.Value = record.CityState;
-
-                    var ZipCode = command.CreateParameter();
-                    ZipCode.ParameterName = "$ZipCode";
-                    command.Parameters.Add(ZipCode);
-                    ZipCode.Value = record.ZipCode;
-
-                    var LevyCode = command.CreateParameter();
-                    LevyCode.ParameterName = "$LevyCode";
-                    command.Parameters.Add(LevyCode);
-                    LevyCode.Value = record.LevyCode;
-
-                    var TaxStat = command.CreateParameter();
-                    TaxStat.ParameterName = "$TaxStat";
-                    command.Parameters.Add(TaxStat);
-                    TaxStat.Value = record.TaxStat;
-
-                    var BillYr = command.CreateParameter();
-                    BillYr.ParameterName = "$BillYr";
-                    command.Parameters.Add(BillYr);
-                    BillYr.Value = record.BillYr;
-
-                    var NewConstructionFlag = command.CreateParameter();
-                    NewConstructionFlag.ParameterName = "$NewConstructionFlag";
-                    command.Parameters.Add(NewConstructionFlag);
-                    NewConstructionFlag.Value = record.NewConstructionFlag;
-
-                    var TaxValReason = command.CreateParameter();
-                    TaxValReason.ParameterName = "$TaxValReason";
-                    command.Parameters.Add(TaxValReason);
-                    TaxValReason.Value = string.IsNullOrWhiteSpace(record?.TaxValReason) ? DBNull.Value : record.TaxValReason;
-
-                    var ApprLandVal = command.CreateParameter();
-                    ApprLandVal.ParameterName = "$ApprLandVal";
-                    command.Parameters.Add(ApprLandVal);
-                    ApprLandVal.Value = record.ApprLandVal;
-
-                    var ApprImpsVal = command.CreateParameter();
-                    ApprImpsVal.ParameterName = "$ApprImpsVal";
-                    command.Parameters.Add(ApprImpsVal);
-                    ApprImpsVal.Value = record.ApprImpsVal;
-
-                    var TaxableLandVal = command.CreateParameter();
-                    TaxableLandVal.ParameterName = "$TaxableLandVal";
-                    command.Parameters.Add(TaxableLandVal);
-                    TaxableLandVal.Value = record.TaxableLandVal;
-
-                    var TaxableImpsVal = command.CreateParameter();
-                    TaxableImpsVal.ParameterName = "$TaxableImpsVal";
-                    command.Parameters.Add(TaxableImpsVal);
-                    TaxableImpsVal.Value = record.TaxableImpsVal;
-
-                    var IngestedOn = command.CreateParameter();
-                    IngestedOn.ParameterName = "$IngestedOn";
-                    command.Parameters.Add(IngestedOn);
-                    IngestedOn.Value = record.IngestedOn;
-
-                    await command.ExecuteNonQueryAsync();
-                }
-
-                await transaction.CommitAsync();
+                await command.ExecuteNonQueryAsync();
             }
 
+            await transaction.CommitAsync();
             return true;
         }
 

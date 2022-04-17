@@ -11,6 +11,8 @@ namespace eRealProperty.Models
         public DbSet<TaxLevy> LevyCodes { get; set; }
         public DbSet<ResidentialBuilding> ResidentialBuildings { get; set; }
         public DbSet<RealPropertyAccountSale> Sales { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<ReviewDescription> ReviewDescriptions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<RealPropertyAccount>()
@@ -33,6 +35,12 @@ namespace eRealProperty.Models
 
             modelBuilder.Entity<RealPropertyAccountSale>()
                 .HasIndex(b => b.ParcelNumber);
+
+            modelBuilder.Entity<Review>()
+                .HasIndex(x => x.ParcelNumber);
+
+            modelBuilder.Entity<ReviewDescription>()
+                .HasIndex(x => x.AppealNbr);
         }
 
         public eRealPropertyContext(DbContextOptions<eRealPropertyContext> options)

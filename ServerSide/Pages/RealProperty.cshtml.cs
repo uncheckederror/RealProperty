@@ -20,6 +20,7 @@ namespace ServerSide.Pages
         public IEnumerable<ResidentialBuilding> ResidentialBuildings { get; set; }
         public RealPropertyAccountSale[] Sales { get; set; }
         public List<PropertyParcel> Parcels { get; set; }
+        public Review[] Reviews { get; set; }
 
         public RealPropertyModel(eRealPropertyContext context)
         {
@@ -81,6 +82,8 @@ namespace ServerSide.Pages
                 ResidentialBuildings = await _context.ResidentialBuildings.Where(x => x.ParcelNumber == parcelQuery).AsNoTracking().ToListAsync();
 
                 Sales = await _context.Sales.Where(x => x.Major == major && x.Minor == minor).AsNoTracking().ToArrayAsync();
+
+                Reviews = await _context.Reviews.Where(x => x.Major == major && x.Minor == minor).AsNoTracking().ToArrayAsync();
             }
         }
     }

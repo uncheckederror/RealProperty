@@ -171,7 +171,7 @@
                                     @if (Model?.ResidentialBuildings is not null && Model.ResidentialBuildings.Any())
                                     {
                                         var residential = Model.ResidentialBuildings.FirstOrDefault();
-                                        var totalSquareFootage = residential.SqFt1stFloor + residential.SqFt2ndFloor + residential.SqFtDeck + residential.SqFtEnclosedPorch + residential.SqFtFinBasement + residential.SqFtGarageAttached + residential.SqFtGarageBasement + residential.SqFtHalfFloor + residential.SqFtOpenPorch + residential.SqFtTotBasement + residential.SqFtTotLiving + residential.SqFtUnfinFull + residential.SqFtUnfinHalf + residential.SqFtUpperFloor;
+                                        var totalSquareFootage = residential.SqFtFinBasement + residential.SqFtGarageAttached + residential.SqFtGarageBasement + residential.SqFtTotBasement + residential.SqFtTotLiving;
                                         var totalBathrooms = residential.Bath3qtrCount + residential.BathFullCount + residential.BathHalfCount;
                                         <p class="subtitle">Year Built</p>
                                         <p class="title">@residential.YrBuilt</p>
@@ -191,11 +191,6 @@
                                         <p class="title">@residential.ViewUtilization</p>
 
                                     }
-                                    <p class="title">Mailing Address</p>
-                                    <p>@account.AttnLine</p>
-                                    <p>@account.AddrLine</p>
-                                    <p>@account.CityState</p>
-                                    <p>@account.ZipCode</p>
                                 </article>
                             </div>
                             <div class="tile is-parent">
@@ -263,6 +258,18 @@
                                                 <p class="title"></p>
                                             }
                                         }
+                                        <p class="title">Mailing Address</p>
+                                        @if (string.IsNullOrWhiteSpace(account.AttnLine) && Model?.Sales is not null && Model.Sales.Any())
+                                        {
+                                            var sale = Model.Sales.FirstOrDefault();
+                                            <p class="subtitle">@sale.BuyerName</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="subtitle">@account.AttnLine</p>
+                                        }
+                                        <p class="subtitle">@account.AddrLine</p>
+                                        <p class="subtitle">@account.CityState @account.ZipCode</p>
                                     </div>
                                 </article>
                             </div>
@@ -317,7 +324,6 @@
                     <div class="tile is-ancestor">
                         <div class="tile is-parent">
                             <article class="tile is-child">
-
                                 <div class="columns is-multiline">
                                     @foreach (var sale in Model?.Sales.OrderByDescending(x => x.DocumentDate))
                                     {
@@ -382,6 +388,10 @@
                                                                 @sale.PlatNbr @sale.PlatBlock @sale.PlatLot @sale.PlatType
                                                             </p>
                                                         }
+                                                        <div class="buttons">
+                                                            <a href="https://recordsearch.kingcounty.gov/Landmarkweb/Document/GetTifDocumentByCFN/?cfn=@sale.ExciseTaxNbr" target="_blank" rel="noreferrer" class="button is-fullwidth">View Excise Document</a>
+                                                            <a href="https://recordsearch.kingcounty.gov/Landmarkweb/Document/GetTifDocumentByCFN/?cfn=@sale.RecordingNbr" target="_blank" rel="noreferrer" class="button is-fullwidth">View Recording Document</a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -408,23 +418,29 @@
                                     <article class="tile is-child notification is-dark box">
                                         <p class="subtitle">Parcel Number</p>
                                         <p class="title">@parcel.ParcelNumber</p>
-                                        <p class="subtitle">Section Township Range</p>
-                                        <p class="title">@parcel.Section @parcel.Township @parcel.Range</p>
+                                        <p class="subtitle">Quarter Section Township Range</p>
+                                        <p class="title">@parcel.QuarterSection-@parcel.Section-@parcel.Township-@parcel.Range</p>
                                         @if (!string.IsNullOrWhiteSpace(parcel.PlatName))
                                         {
                                             <p class="subtitle">Plat Name</p>
                                             <p class="title">@parcel.PlatName</p>
-                                        }
-                                        @if (!string.IsNullOrWhiteSpace(parcel.PlatLot))
-                                        {
-                                            <p class="subtitle">Plat Lot</p>
-                                            <p class="title">@parcel.PlatLot</p>
                                         }
                                         @if (!string.IsNullOrWhiteSpace(parcel.PlatBlock))
                                         {
                                             <p class="subtitle">Plat Block</p>
                                             <p class="title">@parcel.PlatBlock</p>
                                         }
+                                        @if (!string.IsNullOrWhiteSpace(parcel.PlatLot))
+                                        {
+                                            <p class="subtitle">Plat Lot</p>
+                                            <p class="title">@parcel.PlatLot</p>
+                                        }
+                                        <div class="buttons">
+                                            @{
+                                                var pdflink = $"qs_{parcel.QuarterSection}{parcel.Section.ToString("00")}{parcel.Township.ToString("00")}{parcel.Range.ToString("00")}.pdf";
+                                            }
+                                            <a href="https://aqua.kingcounty.gov/assessor/emap/InternetPDF/@pdflink" target="_blank" rel="noreferrer" class="button is-fullwidth">View Quarter Section Map</a>
+                                        </div>
                                     </article>
                                     <article class="tile is-child notification is-info box">
                                         @{
@@ -781,9 +797,12 @@
                                         <p class="subtitle">Property Type</p>
                                         <p class="title">@parcel.PropType</p>
                                         <p class="subtitle">Area</p>
-                                        <p class="title">@parcel.Area</p>
-                                        <p class="subtitle">SubArea</p>
-                                        <p class="title">@parcel.SubArea</p>
+                                        @{
+                                            var area = int.Parse(parcel.Area);
+                                            var subarea = int.Parse(parcel.SubArea);
+                                            var fullArea = $"{area.ToString("000")}-{subarea.ToString("000")}";
+                                        }
+                                        <p class="title">@fullArea</p>
                                         @if (!string.IsNullOrWhiteSpace(parcel.SpecArea))
                                         {
                                             <p class="subtitle">SpecArea</p>
@@ -822,6 +841,12 @@
 
                                     <p class="subtitle">Lot Square Footage</p>
                                     <p class="title">@parcel.SqFtLot</p>
+                                    @{
+                                        var lotSqft = int.Parse(parcel.SqFtLot);
+                                        var acres = lotSqft / 43560.00;
+                                    }
+                                    <p class="subtitle">Lot Acres</p>
+                                    <p class="title">@acres.ToString("N2")</p>
 
                                     @if (!string.IsNullOrWhiteSpace(parcel.WaterSystem))
                                     {
@@ -1118,38 +1143,43 @@
                                                                 <p class="title">@building.SqFtFinBasement</p>
                                                             }
 
+                                                            if (building.SqFtTotBasement > 0)
+                                                            {
+                                                                <p class="subtitle">Total Basement</p>
+                                                                <p class="title">@building.SqFtTotBasement</p>
+                                                            }
+
                                                             if (!string.IsNullOrWhiteSpace(building.FinBasementGrade))
                                                             {
                                                                 <p class="subtitle">Finished Basement Grade</p>
                                                                 <p class="title">@building.FinBasementGrade</p>
                                                             }
 
-                                                            if (building.SqFtFinBasement > 0)
+                                                            if (building.SqFtGarageBasement > 0)
                                                             {
-
                                                                 <p class="subtitle">Garage Basement</p>
                                                                 <p class="title">@building.SqFtGarageBasement</p>
                                                             }
 
-                                                            if (building.SqFtFinBasement > 0)
+                                                            if (building.SqFtGarageAttached > 0)
                                                             {
                                                                 <p class="subtitle">Attached Garage</p>
                                                                 <p class="title">@building.SqFtGarageAttached</p>
                                                             }
 
-                                                            if (building.SqFtFinBasement > 0)
+                                                            if (building.SqFtOpenPorch > 0)
                                                             {
                                                                 <p class="subtitle">Open Porch</p>
                                                                 <p class="title">@building.SqFtOpenPorch</p>
                                                             }
 
-                                                            if (building.SqFtFinBasement > 0)
+                                                            if (building.SqFtEnclosedPorch > 0)
                                                             {
                                                                 <p class="subtitle">Enclosed Porch</p>
                                                                 <p class="title">@building.SqFtEnclosedPorch</p>
                                                             }
 
-                                                            if (building.SqFtFinBasement > 0)
+                                                            if (building.SqFtDeck > 0)
                                                             {
                                                                 <p class="subtitle">Deck</p>
                                                                 <p class="title">@building.SqFtDeck</p>
@@ -1256,6 +1286,156 @@
                     </div>
                 }
             </section>
+        }
+
+        @if (Model?.Reviews is not null && Model.Reviews.Any())
+        {
+            <div class="level has-background-white">
+                <section class="section container pt-3">
+                    <p class="subtitle is-1" id="taxyears">Reviews</p>
+                    <div class="tile is-ancestor">
+                        <div class="tile is-parent">
+                            <article class="tile is-child">
+                                <div class="columns is-multiline">
+                                    @foreach (var review in Model.Reviews)
+                                    {
+                                        <div class="column is-one-third">
+                                            <div class="card">
+                                                <div class="card-content">
+                                                    <div class="content">
+                                                        @if (!string.IsNullOrWhiteSpace(review.Agent))
+                                                        {
+                                                            <p class="subtitle">Agent</p>
+                                                            <p class="title">@review.Agent</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.AppealNbr))
+                                                        {
+                                                            <p class="subtitle">Appeal Number</p>
+                                                            <p class="title">@review.AppealNbr</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.AppealRecommended))
+                                                        {
+                                                            <p class="subtitle">Appeal Recommended</p>
+                                                            if (review.AppealRecommended == "Y")
+                                                            {
+                                                                <p class="title">Yes</p>
+
+                                                            }
+                                                            else if (review.AppealRecommended == "N")
+                                                            {
+                                                                <p class="title">No</p>
+                                                            }
+                                                            else
+                                                            {
+                                                                <p class="title">@review.AppealRecommended</p>
+                                                            }
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.AppellantReason))
+                                                        {
+                                                            <p class="subtitle">Appellant Reason</p>
+                                                            <p class="title">@review.AppellantReason</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.AssrRecommendation))
+                                                        {
+                                                            <p class="subtitle">Assessor Recommendation</p>
+                                                            <p class="title">@review.AssrRecommendation</p>
+
+                                                        }
+                                                        @if (review.BillYr > 0)
+                                                        {
+                                                            <p class="subtitle">Bill Year</p>
+                                                            <p class="title">@review.BillYr</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.BoardReason))
+                                                        {
+                                                            <p class="subtitle">Board Reason</p>
+                                                            <p class="title">@review.BoardReason</p>
+
+                                                         // Hearing dates don't show up correctly in the existing app, 
+                                                         // rather the are reported as the string form of a default DateTime.
+                                                        }
+
+                                                        <p class="subtitle">Hearing Date</p>
+                                                        <p class="title">@review.HearingDate.ToShortDateString()</p>
+                                                            
+                                                        @if (!string.IsNullOrWhiteSpace(review.HearingResult))
+                                                        {
+                                                            <p class="subtitle">Hearing Result</p>
+                                                            <p class="title">@review.HearingResult</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.HearingType))
+                                                        {
+                                                            <p class="subtitle">Hearing Type</p>
+                                                            <p class="title">@review.HearingType</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.OrderTerm))
+                                                        {
+                                                            <p class="subtitle">Order Term</p>
+                                                            <p class="title">@review.OrderTerm</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.RelatedAppealNbr))
+                                                        {
+                                                            <p class="subtitle">Related Appeal Number</p>
+                                                            <p class="title">@review.RelatedAppealNbr</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.ReviewSource))
+                                                        {
+                                                            <p class="subtitle">Review Source</p>
+                                                            <p class="title">@review.ReviewSource</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.ReviewType))
+                                                        {
+                                                            <p class="subtitle">Review Type</p>
+                                                            <p class="title">@review.ReviewType</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.StatusAssessor))
+                                                        {
+                                                            <p class="subtitle">Status Assessor</p>
+                                                            <p class="title">@review.StatusAssessor</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.StatusAssmtReview))
+                                                        {
+                                                            <p class="subtitle">Status Assessment Review</p>
+                                                            <p class="title">@review.StatusAssmtReview</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.StatusBoard))
+                                                        {
+                                                            <p class="subtitle">Status Board</p>
+                                                            <p class="title">@review.StatusBoard</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.StatusStipulation))
+                                                        {
+                                                            <p class="subtitle">Status Stipulation</p>
+                                                            <p class="title">@review.StatusStipulation</p>
+                                                        }
+                                                        <p class="subtitle">Last Updated Date</p>
+                                                        <p class="title">@review.UpdateDate.ToShortDateString()</p>
+                                                        @if (!string.IsNullOrWhiteSpace(review.UpdatedBy))
+                                                        {
+                                                            <p class="subtitle">Updated By</p>
+                                                            <p class="title">@review.UpdatedBy</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.RespAppr))
+                                                        {
+                                                            <p class="subtitle">Response Approver</p>
+                                                            <p class="title">@review.RespAppr</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.ValueType))
+                                                        {
+                                                            <p class="subtitle">Value Type</p>
+                                                            <p class="title">@review.ValueType</p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+            </div>
         }
     }
 }

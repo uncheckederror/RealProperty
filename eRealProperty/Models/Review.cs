@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -49,6 +50,12 @@ namespace eRealProperty.Models
         public string NoteId { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
+        [Ignore]
+        [NotMapped]
+        public ReviewDescription AppealedValue { get; set; }
+        [Ignore]
+        [NotMapped]
+        public ReviewDescription FinalValue { get; set; }
 
         public static async Task<bool> IngestAsync(eRealPropertyContext context, string zipUrl, string fileName)
         {

@@ -169,6 +169,33 @@ namespace ServerSide
                 }
             }
 
+            if (!await db.Permits.AnyAsync())
+            {
+                Log.Information("Ingesting Permits.");
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM Permits;");
+                var years = await Permit.IngestAsync(db, config["DataSources:Permit"], config["DataSources:PermitFileName"]);
+                if (years)
+                {
+                    Log.Information($"Ingested {await db.Permits.CountAsync()} Permits.");
+                }
+                else
+                {
+                    Log.Fatal("Failed to ingest Permits.");
+                }
+
+
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM PermitDetailHistories;");
+                years = await PermitDetailHistory.IngestAsync(db, config["DataSources:ReviewHistory"], config["DataSources:PermitDetailHistoryFileName"]);
+                if (years)
+                {
+                    Log.Information($"Ingested {await db.PermitDetailHistories.CountAsync()} Permit Details.");
+                }
+                else
+                {
+                    Log.Fatal("Failed to ingest Permit Details.");
+                }
+            }
+            
             try
             {
                 Log.Information("Starting web host");

@@ -21,6 +21,7 @@ namespace ServerSide.Pages
         public RealPropertyAccountSale[] Sales { get; set; }
         public List<PropertyParcel> Parcels { get; set; }
         public Review[] Reviews { get; set; }
+        public Permit[] Permits { get; set; }
 
         public RealPropertyModel(eRealPropertyContext context)
         {
@@ -84,6 +85,20 @@ namespace ServerSide.Pages
                 Sales = await _context.Sales.Where(x => x.Major == major && x.Minor == minor).AsNoTracking().ToArrayAsync();
 
                 Reviews = await _context.Reviews.Where(x => x.Major == major && x.Minor == minor).AsNoTracking().ToArrayAsync();
+
+                foreach (var review in Reviews)
+                {
+                    review.AppealedValue = await _context.ReviewDescriptions.Where(x => x.AppealNbr == review.AppealNbr && x.ValuationType == "Appealed Value").FirstOrDefaultAsync();
+                    review.FinalValue = await _context.ReviewDescriptions.Where(x => x.AppealNbr == review.AppealNbr && x.ValuationType == "Board Order Value").FirstOrDefaultAsync();
+                }
+
+                Permits = await _context.Permits.Where(x => x.ParcelNumber == parcelQuery).ToArrayAsync();
+
+                foreach (var permit in Permits)
+                {
+                    var description = await _context.PermitDetailHistories.Where(x => x.PermitNbr == permit.PermitNbr && x.PermitItem == "Project Name").FirstOrDefaultAsync();
+                    permit.ProjectName = description.ItemValue;
+                }
             }
         }
     }

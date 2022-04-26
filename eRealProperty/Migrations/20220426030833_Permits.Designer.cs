@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eRealProperty.Models;
 
@@ -10,9 +11,10 @@ using eRealProperty.Models;
 namespace eRealProperty.Migrations
 {
     [DbContext(typeof(eRealPropertyContext))]
-    partial class eRealPropertyContextModelSnapshot : ModelSnapshot
+    [Migration("20220426030833_Permits")]
+    partial class Permits
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.3");
@@ -92,31 +94,6 @@ namespace eRealProperty.Migrations
                     b.HasIndex("ParcelNumber");
 
                     b.ToTable("Permits");
-                });
-
-            modelBuilder.Entity("eRealProperty.Models.PermitDetailHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("IngestedOn")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ItemValue")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PermitItem")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PermitNbr")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PermitNbr");
-
-                    b.ToTable("PermitDetailHistories");
                 });
 
             modelBuilder.Entity("eRealProperty.Models.PropertyParcel", b =>

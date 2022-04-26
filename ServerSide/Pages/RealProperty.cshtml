@@ -331,13 +331,13 @@
                                             <div class="card">
                                                 <div class="card-content">
                                                     <div class="content">
+                                                        <p class="subtitle">Excise Number</p>
+                                                        <p class="title is-1">
+                                                            @sale.ExciseTaxNbr
+                                                        </p>
                                                         <p class="subtitle">Document Date</p>
                                                         <p class="title">
                                                             @sale.DocumentDate.ToShortDateString()
-                                                        </p>
-                                                        <p class="subtitle">Excise Number</p>
-                                                        <p class="title">
-                                                            @sale.ExciseTaxNbr
                                                         </p>
                                                         <p class="subtitle">Sale Reason</p>
                                                         <p class="title">
@@ -1292,7 +1292,7 @@
         {
             <div class="level has-background-white">
                 <section class="section container pt-3">
-                    <p class="subtitle is-1" id="taxyears">Reviews</p>
+                    <p class="subtitle is-1" id="reviews">Reviews</p>
                     <div class="tile is-ancestor">
                         <div class="tile is-parent">
                             <article class="tile is-child">
@@ -1303,65 +1303,55 @@
                                             <div class="card">
                                                 <div class="card-content">
                                                     <div class="content">
-                                                        @if (!string.IsNullOrWhiteSpace(review.Agent))
+                                                        @if (review.BillYr > 0)
                                                         {
-                                                            <p class="subtitle">Agent</p>
-                                                            <p class="title">@review.Agent</p>
+                                                            <p class="subtitle">Tax Year</p>
+                                                            <p class="title is-1">@review.BillYr</p>
                                                         }
                                                         @if (!string.IsNullOrWhiteSpace(review.AppealNbr))
                                                         {
                                                             <p class="subtitle">Appeal Number</p>
                                                             <p class="title">@review.AppealNbr</p>
                                                         }
-                                                        @if (!string.IsNullOrWhiteSpace(review.AppealRecommended))
+                                                        @if (!string.IsNullOrWhiteSpace(review.ReviewType))
                                                         {
-                                                            <p class="subtitle">Appeal Recommended</p>
-                                                            if (review.AppealRecommended == "Y")
-                                                            {
-                                                                <p class="title">Yes</p>
+                                                            <p class="subtitle">Review Type</p>
+                                                            <p class="title">@review.ReviewType</p>
+                                                        }
 
-                                                            }
-                                                            else if (review.AppealRecommended == "N")
-                                                            {
-                                                                <p class="title">No</p>
-                                                            }
-                                                            else
-                                                            {
-                                                                <p class="title">@review.AppealRecommended</p>
-                                                            }
-                                                        }
-                                                        @if (!string.IsNullOrWhiteSpace(review.AppellantReason))
+                                                        @if (!string.IsNullOrWhiteSpace(review.ValueType))
                                                         {
-                                                            <p class="subtitle">Appellant Reason</p>
-                                                            <p class="title">@review.AppellantReason</p>
+                                                            <p class="subtitle">Value Type</p>
+                                                            <p class="title">@review.ValueType</p>
                                                         }
-                                                        @if (!string.IsNullOrWhiteSpace(review.AssrRecommendation))
+                                                        @if (review?.AppealedValue is not null)
                                                         {
-                                                            <p class="subtitle">Assessor Recommendation</p>
-                                                            <p class="title">@review.AssrRecommendation</p>
+                                                            var appealedValue = review.AppealedValue.ApprImpsVal + review.AppealedValue.ApprLandVal;
+                                                            <p class="subtitle">Appealed Value</p>
+                                                            <p class="title">@appealedValue.ToString("C2")</p>
 
-                                                        }
-                                                        @if (review.BillYr > 0)
-                                                        {
-                                                            <p class="subtitle">Bill Year</p>
-                                                            <p class="title">@review.BillYr</p>
-                                                        }
-                                                        @if (!string.IsNullOrWhiteSpace(review.BoardReason))
-                                                        {
-                                                            <p class="subtitle">Board Reason</p>
-                                                            <p class="title">@review.BoardReason</p>
-
-                                                         // Hearing dates don't show up correctly in the existing app, 
-                                                         // rather the are reported as the string form of a default DateTime.
+                                                            // Hearing dates don't show up correctly in the existing app,
+                                                            // rather the are reported as the string form of a default DateTime.
                                                         }
 
                                                         <p class="subtitle">Hearing Date</p>
                                                         <p class="title">@review.HearingDate.ToShortDateString()</p>
-                                                            
+
+                                                        @if (review?.FinalValue is not null)
+                                                        {
+                                                            var finalValue = review.FinalValue.ApprImpsVal + review.FinalValue.ApprLandVal;
+                                                            <p class="subtitle">Settlement Value</p>
+                                                            <p class="title">@finalValue.ToString("C2")</p>
+                                                        }
                                                         @if (!string.IsNullOrWhiteSpace(review.HearingResult))
                                                         {
-                                                            <p class="subtitle">Hearing Result</p>
+                                                            <p class="subtitle">Hearing Decision</p>
                                                             <p class="title">@review.HearingResult</p>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(review.StatusAssmtReview))
+                                                        {
+                                                            <p class="subtitle">Assessment Review Status</p>
+                                                            <p class="title">@review.StatusAssmtReview</p>
                                                         }
                                                         @if (!string.IsNullOrWhiteSpace(review.HearingType))
                                                         {
@@ -1373,58 +1363,18 @@
                                                             <p class="subtitle">Order Term</p>
                                                             <p class="title">@review.OrderTerm</p>
                                                         }
-                                                        @if (!string.IsNullOrWhiteSpace(review.RelatedAppealNbr))
-                                                        {
-                                                            <p class="subtitle">Related Appeal Number</p>
-                                                            <p class="title">@review.RelatedAppealNbr</p>
-                                                        }
                                                         @if (!string.IsNullOrWhiteSpace(review.ReviewSource))
                                                         {
                                                             <p class="subtitle">Review Source</p>
                                                             <p class="title">@review.ReviewSource</p>
                                                         }
-                                                        @if (!string.IsNullOrWhiteSpace(review.ReviewType))
+                                                        @if (!string.IsNullOrWhiteSpace(review.Agent))
                                                         {
-                                                            <p class="subtitle">Review Type</p>
-                                                            <p class="title">@review.ReviewType</p>
-                                                        }
-                                                        @if (!string.IsNullOrWhiteSpace(review.StatusAssessor))
-                                                        {
-                                                            <p class="subtitle">Status Assessor</p>
-                                                            <p class="title">@review.StatusAssessor</p>
-                                                        }
-                                                        @if (!string.IsNullOrWhiteSpace(review.StatusAssmtReview))
-                                                        {
-                                                            <p class="subtitle">Status Assessment Review</p>
-                                                            <p class="title">@review.StatusAssmtReview</p>
-                                                        }
-                                                        @if (!string.IsNullOrWhiteSpace(review.StatusBoard))
-                                                        {
-                                                            <p class="subtitle">Status Board</p>
-                                                            <p class="title">@review.StatusBoard</p>
-                                                        }
-                                                        @if (!string.IsNullOrWhiteSpace(review.StatusStipulation))
-                                                        {
-                                                            <p class="subtitle">Status Stipulation</p>
-                                                            <p class="title">@review.StatusStipulation</p>
+                                                            <p class="subtitle">Agent</p>
+                                                            <p class="title">@review.Agent</p>
                                                         }
                                                         <p class="subtitle">Last Updated Date</p>
                                                         <p class="title">@review.UpdateDate.ToShortDateString()</p>
-                                                        @if (!string.IsNullOrWhiteSpace(review.UpdatedBy))
-                                                        {
-                                                            <p class="subtitle">Updated By</p>
-                                                            <p class="title">@review.UpdatedBy</p>
-                                                        }
-                                                        @if (!string.IsNullOrWhiteSpace(review.RespAppr))
-                                                        {
-                                                            <p class="subtitle">Response Approver</p>
-                                                            <p class="title">@review.RespAppr</p>
-                                                        }
-                                                        @if (!string.IsNullOrWhiteSpace(review.ValueType))
-                                                        {
-                                                            <p class="subtitle">Value Type</p>
-                                                            <p class="title">@review.ValueType</p>
-                                                        }
                                                     </div>
                                                 </div>
                                             </div>
@@ -1437,5 +1387,61 @@
                 </section>
             </div>
         }
+
+        @if (Model?.Permits is not null && Model.Permits.Any())
+        {
+            <div class="level has-background-white">
+                <section class="section container pt-3">
+                    <p class="subtitle is-1" id="permits">Permits</p>
+                    <div class="tile is-ancestor">
+                        <div class="tile is-parent">
+                            <article class="tile is-child">
+                                <div class="columns is-multiline">
+                                    @foreach (var review in Model.Permits.OrderByDescending(x => x.IssueDate))
+                                    {
+                                        <div class="column is-one-third">
+                                            <div class="card">
+                                                <div class="card-content">
+                                                    <div class="content">
+                                                        @if (!string.IsNullOrWhiteSpace(review.PermitNbr))
+                                                        {
+                                                            <p class="subtitle">Permit Number</p>
+                                                            <p class="title is-1">@review.PermitNbr</p>
+                                                        }
+
+                                                        @if (!string.IsNullOrWhiteSpace(review.ProjectName))
+                                                        {
+                                                            <p class="subtitle">Project Name</p>
+                                                            <p class="title">@review.ProjectName.Replace(",", string.Empty)</p>
+                                                        }
+
+                                                        <p class="subtitle">Permit Type</p>
+                                                        <p class="title">@review.IssueDate.ToShortDateString()</p>
+
+
+                                                        @if (!string.IsNullOrWhiteSpace(review.PermitType))
+                                                        {
+                                                            <p class="subtitle">Permit Type</p>
+                                                            <p class="title">@review.PermitType</p>
+                                                        }
+
+                                                        <p class="subtitle">Permit Value</p>
+                                                        <p class="title">@review.PermitVal.ToString("C2")</p>
+
+                                                        <p class="subtitle">Last Reviewed Date</p>
+                                                        <p class="title">@review.UpdateDate.ToShortDateString()</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        }
+
     }
 }

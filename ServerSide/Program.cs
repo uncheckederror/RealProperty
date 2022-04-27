@@ -68,6 +68,44 @@ namespace ServerSide
                 }
             }
 
+            if (!await db.CommericalBuildings.AnyAsync())
+            {
+                Log.Information("Ingesting Commerical Buildings.");
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM CommericalBuildings;");
+                var years = await CommericalBuilding.IngestAsync(db, config["DataSources:CommericalBuilding"], config["DataSources:CommericalBuildingFileName"]);
+                if (years)
+                {
+                    Log.Information($"Ingested {await db.CommericalBuildings.CountAsync()} Commerical Buildings.");
+                }
+                else
+                {
+                    Log.Fatal("Failed to ingest Commerical Buildings.");
+                }
+
+
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM CommericalBuildingFeatures;");
+                years = await CommericalBuildingFeature.IngestAsync(db, config["DataSources:CommericalBuilding"], config["DataSources:CommericalBuildingFeatureFileName"]);
+                if (years)
+                {
+                    Log.Information($"Ingested {await db.PermitDetailHistories.CountAsync()} Commerical Building Features.");
+                }
+                else
+                {
+                    Log.Fatal("Failed to ingest Commerical Building Features.");
+                }
+
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM CommericalBuildingSections;");
+                years = await CommericalBuildingSection.IngestAsync(db, config["DataSources:CommericalBuilding"], config["DataSources:CommericalBuildingSectionFileName"]);
+                if (years)
+                {
+                    Log.Information($"Ingested {await db.PermitDetailHistories.CountAsync()} Commerical Building Sections.");
+                }
+                else
+                {
+                    Log.Fatal("Failed to ingest Commerical Building Sections.");
+                }
+            }
+
             if (!await db.LegalDiscriptions.AnyAsync())
             {
                 Log.Information("Ingesting Legal Descriptions.");

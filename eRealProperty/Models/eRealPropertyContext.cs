@@ -15,6 +15,10 @@ namespace eRealProperty.Models
         public DbSet<ReviewDescription> ReviewDescriptions { get; set; }
         public DbSet<Permit> Permits { get; set; }
         public DbSet<PermitDetailHistory> PermitDetailHistories { get; set; }
+        public DbSet<CommericalBuilding> CommericalBuildings { get; set; }
+        public DbSet<CommericalBuildingSection> CommericalBuildingSections { get; set; }
+        public DbSet<CommericalBuildingFeature> CommericalBuildingFeatures { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<RealPropertyAccount>()
@@ -49,6 +53,15 @@ namespace eRealProperty.Models
 
             modelBuilder.Entity<PermitDetailHistory>()
                 .HasIndex(x => x.PermitNbr);
+
+            modelBuilder.Entity<CommericalBuilding>()
+                .HasIndex(x => x.ParcelNumber);
+
+            modelBuilder.Entity<CommericalBuildingSection>()
+                .HasIndex(x => x.ParcelNumber);
+
+            modelBuilder.Entity<CommericalBuildingFeature>()
+                .HasIndex(x => x.ParcelNumber);
         }
 
         public eRealPropertyContext(DbContextOptions<eRealPropertyContext> options)

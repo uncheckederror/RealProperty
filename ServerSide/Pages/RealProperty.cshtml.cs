@@ -22,7 +22,9 @@ namespace ServerSide.Pages
         public List<PropertyParcel> Parcels { get; set; }
         public Review[] Reviews { get; set; }
         public Permit[] Permits { get; set; }
-
+        public CommericalBuilding[] CommericalBuildings { get; set; }
+        public CommericalBuildingSection[] CommericalBuildingSections { get; set; }
+        public CommericalBuildingFeature[] CommericalBuildingFeatures { get; set; }
         public RealPropertyModel(eRealPropertyContext context)
         {
             _context = context;
@@ -97,8 +99,12 @@ namespace ServerSide.Pages
                 foreach (var permit in Permits)
                 {
                     var description = await _context.PermitDetailHistories.Where(x => x.PermitNbr == permit.PermitNbr && x.PermitItem == "Project Name").FirstOrDefaultAsync();
-                    permit.ProjectName = description.ItemValue;
+                    permit.ProjectName = !string.IsNullOrWhiteSpace(description?.ItemValue) ? description.ItemValue : string.Empty;
                 }
+
+                CommericalBuildings = await _context.CommericalBuildings.Where(x => x.ParcelNumber == parcelQuery).ToArrayAsync();
+                CommericalBuildingSections = await _context.CommericalBuildingSections.Where(x => x.ParcelNumber == parcelQuery).ToArrayAsync();
+                CommericalBuildingFeatures = await _context.CommericalBuildingFeatures.Where(x => x.ParcelNumber == parcelQuery).ToArrayAsync();
             }
         }
     }

@@ -898,6 +898,7 @@
 
         @if (Model?.TaxYears is not null && Model.TaxYears.Any())
         {
+            var exemptions = Model.TaxYears.Where(x => !string.IsNullOrWhiteSpace(x.TaxValReason)).Any();
             <div class="level has-background-info">
                 <section class="section container pt-3">
                     <p class="subtitle is-1 has-text-white" id="taxyears">Tax Years</p>
@@ -942,6 +943,12 @@
                                                     <th>
                                                         Levy Code
                                                     </th>
+                                                    @if (exemptions)
+                                                    {
+                                                        <th>
+                                                            Tax Value Reason
+                                                        </th>
+                                                    }
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -987,6 +994,12 @@
                                                                 <td>
                                                                     @year.LevyCode
                                                                 </td>
+                                                                @if (exemptions)
+                                                                {
+                                                                    <td>
+                                                                        @year.TaxValReason
+                                                                    </td>
+                                                                }
                                                             </tr>
 
                                                         }
@@ -1026,8 +1039,13 @@
                                                                 <td>
                                                                     @year.LevyCode
                                                                 </td>
+                                                                @if (exemptions)
+                                                                {
+                                                                    <td>
+                                                                        @year.TaxValReason
+                                                                    </td>
+                                                                }
                                                             </tr>
-
                                                         }
                                                     }
                                                 }
@@ -1046,240 +1064,331 @@
         {
             <section class="section container pt-3">
                 <p class="subtitle is-1" id="residentialBuildings">Residential Buildings</p>
-                @foreach (var building in Model.ResidentialBuildings)
-                {
-                    <div class="tile is-ancestor">
-                        <div class="tile is-parent">
-                            <article class="tile is-child">
-                                <div class="columns is-multiline">
-                                    @foreach (var sale in Model?.ResidentialBuildings.OrderByDescending(x => x.YrBuilt))
-                                    {
-                                        <div class="column is-one-third">
-                                            <div class="card">
-                                                <div class="card-content">
-                                                    <div class="content">
-                                                        <p class="subtitle">Address</p>
-                                                        <p class="title">@building?.Address</p>
-                                                        @{
-                                                            if (!string.IsNullOrWhiteSpace(building.Stories))
-                                                            {
-                                                                <p class="subtitle">Stories</p>
-                                                                <p class="title">@building.Stories</p>
-                                                            }
-
-                                                            if (!string.IsNullOrWhiteSpace(building.BldgGrade))
-                                                            {
-                                                                <p class="subtitle">Building Grade</p>
-                                                                <p class="title">@building.BldgGrade</p>
-                                                            }
-
-                                                            if (building.BldgGradeVar > 0)
-                                                            {
-                                                                <p class="subtitle">Building Grade Variation</p>
-                                                                <p class="title">@building.BldgGradeVar</p>
-                                                            }
-
-                                                            <p class="subtitle">Condition</p>
-                                                            <p class="title">@building.Condition</p>
-
-                                                            if (building.YrRenovated > 0)
-                                                            {
-                                                                <p class="subtitle">Year Renovated</p>
-                                                                <p class="title">@building.YrRenovated</p>
-                                                                <p class="subtitle">Year Built</p>
-                                                                <p class="title">@building.YrBuilt</p>
-                                                            }
-                                                            else
-                                                            {
-                                                                <p class="subtitle">Year Built</p>
-                                                                <p class="title">@building.YrBuilt</p>
-                                                            }
-
-                                                            if (building.SqFt1stFloor > 0)
-                                                            {
-                                                                <p class="subtitle">1st Floor</p>
-                                                                <p class="title">@building.SqFt1stFloor</p>
-                                                            }
-
-                                                            if (building.SqFtHalfFloor > 0)
-                                                            {
-                                                                <p class="subtitle">Half Floor</p>
-                                                                <p class="title">@building.SqFtHalfFloor</p>
-                                                            }
-
-                                                            if (building.SqFt2ndFloor > 0)
-                                                            {
-                                                                <p class="subtitle">2nd Floor</p>
-                                                                <p class="title">@building.SqFt2ndFloor</p>
-                                                            }
-
-                                                            if (building.SqFtUpperFloor > 0)
-                                                            {
-                                                                <p class="subtitle">Upper Floor</p>
-                                                                <p class="title">@building.SqFtUpperFloor</p>
-                                                            }
-
-                                                            if (building.SqFtUnfinFull > 0)
-                                                            {
-                                                                <p class="subtitle">Unfinished Full</p>
-                                                                <p class="title">@building.SqFtUnfinFull</p>
-                                                            }
-
-                                                            if (building.SqFtUnfinHalf > 0)
-                                                            {
-                                                                <p class="subtitle">Unfinished Half</p>
-                                                                <p class="title">@building.SqFtUnfinHalf</p>
-                                                            }
-
-                                                            if (building.SqFtTotLiving > 0)
-                                                            {
-                                                                <p class="subtitle">Total Living</p>
-                                                                <p class="title">@building.SqFtTotLiving</p>
-                                                            }
-
-                                                            if (building.SqFtFinBasement > 0)
-                                                            {
-                                                                <p class="subtitle">Finished Basement</p>
-                                                                <p class="title">@building.SqFtFinBasement</p>
-                                                            }
-
-                                                            if (building.SqFtTotBasement > 0)
-                                                            {
-                                                                <p class="subtitle">Total Basement</p>
-                                                                <p class="title">@building.SqFtTotBasement</p>
-                                                            }
-
-                                                            if (!string.IsNullOrWhiteSpace(building.FinBasementGrade))
-                                                            {
-                                                                <p class="subtitle">Finished Basement Grade</p>
-                                                                <p class="title">@building.FinBasementGrade</p>
-                                                            }
-
-                                                            if (building.SqFtGarageBasement > 0)
-                                                            {
-                                                                <p class="subtitle">Garage Basement</p>
-                                                                <p class="title">@building.SqFtGarageBasement</p>
-                                                            }
-
-                                                            if (building.SqFtGarageAttached > 0)
-                                                            {
-                                                                <p class="subtitle">Attached Garage</p>
-                                                                <p class="title">@building.SqFtGarageAttached</p>
-                                                            }
-
-                                                            if (building.SqFtOpenPorch > 0)
-                                                            {
-                                                                <p class="subtitle">Open Porch</p>
-                                                                <p class="title">@building.SqFtOpenPorch</p>
-                                                            }
-
-                                                            if (building.SqFtEnclosedPorch > 0)
-                                                            {
-                                                                <p class="subtitle">Enclosed Porch</p>
-                                                                <p class="title">@building.SqFtEnclosedPorch</p>
-                                                            }
-
-                                                            if (building.SqFtDeck > 0)
-                                                            {
-                                                                <p class="subtitle">Deck</p>
-                                                                <p class="title">@building.SqFtDeck</p>
-                                                            }
-
-                                                            if (!string.IsNullOrWhiteSpace(building.HeatSystem))
-                                                            {
-                                                                <p class="subtitle">Heat System</p>
-                                                                <p class="title">@building.HeatSystem</p>
-                                                            }
-
-                                                            if (!string.IsNullOrWhiteSpace(building.HeatSource))
-                                                            {
-                                                                <p class="subtitle">Heat Source</p>
-                                                                <p class="title">@building.HeatSource</p>
-                                                            }
-
-                                                            if (building.BrickStone > 0)
-                                                            {
-                                                                <p class="subtitle">Percent Brick or Stone</p>
-                                                                <p class="title">@building.BrickStone</p>
-                                                            }
-
-                                                            if (!string.IsNullOrWhiteSpace(building.ViewUtilization))
-                                                            {
-                                                                <p class="subtitle">View Utilization</p>
-                                                                <p class="title">@building.ViewUtilization</p>
-                                                            }
-
-                                                            if (building.Bedrooms > 0)
-                                                            {
-                                                                <p class="subtitle">Bedrooms</p>
-                                                                <p class="title">@building.Bedrooms</p>
-                                                            }
-
-                                                            if (building.BathHalfCount > 0)
-                                                            {
-                                                                <p class="subtitle">Half Baths</p>
-                                                                <p class="title">@building.BathHalfCount</p>
-                                                            }
-                                                            if (building.Bath3qtrCount > 0)
-                                                            {
-                                                                <p class="subtitle">3/4 Baths</p>
-                                                                <p class="title">@building.Bath3qtrCount</p>
-                                                            }
-                                                            if (building.BathFullCount > 0)
-                                                            {
-                                                                <p class="subtitle">Full Bath</p>
-                                                                <p class="title">@building.BathFullCount</p>
-                                                            }
-                                                            if (building.FpSingleStory > 0)
-                                                            {
-                                                                <p class="subtitle">Single Story Fireplace</p>
-                                                                <p class="title">@building.FpSingleStory</p>
-                                                            }
-                                                            if (building.FpMultiStory > 0)
-                                                            {
-                                                                <p class="subtitle">Multistory Fireplace</p>
-                                                                <p class="title">@building.FpMultiStory</p>
-                                                            }
-                                                            if (building.FpFreestanding > 0)
-                                                            {
-                                                                <p class="subtitle">Freestanding Fireplace</p>
-                                                                <p class="title">@building.FpFreestanding</p>
-                                                            }
-                                                            if (building.FpAdditional > 0)
-                                                            {
-                                                                <p class="subtitle">Additional Fireplace</p>
-                                                                <p class="title">@building.FpAdditional</p>
-                                                            }
-
-                                                            if (building.PcntComplete > 0)
-                                                            {
-                                                                <p class="subtitle">Percent Complete</p>
-                                                                <p class="title">@building.PcntComplete</p>
-                                                            }
-
-                                                            if (building.Obsolescence > 0)
-                                                            {
-                                                                <p class="subtitle">Obsolescence</p>
-                                                                <p class="title">@building.Obsolescence</p>
-                                                            }
-
-                                                            if (building.PcntNetCondition > 0)
-                                                            {
-                                                                <p class="subtitle">Percent Net Condition</p>
-                                                                <p class="title">@building.PcntNetCondition</p>
-                                                            }
-
-                                                            if (building.AddnlCost > 0)
-                                                            {
-                                                                <p class="subtitle">Additional Cost</p>
-                                                                <p class="title">@building.AddnlCost</p>
-                                                            }
+                <div class="tile is-ancestor">
+                    <div class="tile is-parent">
+                        <article class="tile is-child">
+                            <div class="columns is-multiline">
+                                @foreach (var building in Model?.ResidentialBuildings.OrderByDescending(x => x.BldgNbr))
+                                {
+                                    <div class="column is-one-third">
+                                        <div class="card">
+                                            <div class="card-content">
+                                                <div class="content">
+                                                    <p class="subtitle">Address</p>
+                                                    <p class="title">@building?.Address</p>
+                                                    @{
+                                                        if (!string.IsNullOrWhiteSpace(building.Stories))
+                                                        {
+                                                            <p class="subtitle">Stories</p>
+                                                            <p class="title">@building.Stories</p>
                                                         }
-                                                    </div>
+
+                                                        if (!string.IsNullOrWhiteSpace(building.BldgGrade))
+                                                        {
+                                                            <p class="subtitle">Building Grade</p>
+                                                            <p class="title">@building.BldgGrade</p>
+                                                        }
+
+                                                        if (building.BldgGradeVar > 0)
+                                                        {
+                                                            <p class="subtitle">Building Grade Variation</p>
+                                                            <p class="title">@building.BldgGradeVar</p>
+                                                        }
+
+                                                        <p class="subtitle">Condition</p>
+                                                        <p class="title">@building.Condition</p>
+
+                                                        if (building.YrRenovated > 0)
+                                                        {
+                                                            <p class="subtitle">Year Renovated</p>
+                                                            <p class="title">@building.YrRenovated</p>
+                                                            <p class="subtitle">Year Built</p>
+                                                            <p class="title">@building.YrBuilt</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p class="subtitle">Year Built</p>
+                                                            <p class="title">@building.YrBuilt</p>
+                                                        }
+
+                                                        if (building.SqFt1stFloor > 0)
+                                                        {
+                                                            <p class="subtitle">1st Floor</p>
+                                                            <p class="title">@building.SqFt1stFloor</p>
+                                                        }
+
+                                                        if (building.SqFtHalfFloor > 0)
+                                                        {
+                                                            <p class="subtitle">Half Floor</p>
+                                                            <p class="title">@building.SqFtHalfFloor</p>
+                                                        }
+
+                                                        if (building.SqFt2ndFloor > 0)
+                                                        {
+                                                            <p class="subtitle">2nd Floor</p>
+                                                            <p class="title">@building.SqFt2ndFloor</p>
+                                                        }
+
+                                                        if (building.SqFtUpperFloor > 0)
+                                                        {
+                                                            <p class="subtitle">Upper Floor</p>
+                                                            <p class="title">@building.SqFtUpperFloor</p>
+                                                        }
+
+                                                        if (building.SqFtUnfinFull > 0)
+                                                        {
+                                                            <p class="subtitle">Unfinished Full</p>
+                                                            <p class="title">@building.SqFtUnfinFull</p>
+                                                        }
+
+                                                        if (building.SqFtUnfinHalf > 0)
+                                                        {
+                                                            <p class="subtitle">Unfinished Half</p>
+                                                            <p class="title">@building.SqFtUnfinHalf</p>
+                                                        }
+
+                                                        if (building.SqFtTotLiving > 0)
+                                                        {
+                                                            <p class="subtitle">Total Living</p>
+                                                            <p class="title">@building.SqFtTotLiving</p>
+                                                        }
+
+                                                        if (building.SqFtFinBasement > 0)
+                                                        {
+                                                            <p class="subtitle">Finished Basement</p>
+                                                            <p class="title">@building.SqFtFinBasement</p>
+                                                        }
+
+                                                        if (building.SqFtTotBasement > 0)
+                                                        {
+                                                            <p class="subtitle">Total Basement</p>
+                                                            <p class="title">@building.SqFtTotBasement</p>
+                                                        }
+
+                                                        if (!string.IsNullOrWhiteSpace(building.FinBasementGrade))
+                                                        {
+                                                            <p class="subtitle">Finished Basement Grade</p>
+                                                            <p class="title">@building.FinBasementGrade</p>
+                                                        }
+
+                                                        if (building.SqFtGarageBasement > 0)
+                                                        {
+                                                            <p class="subtitle">Garage Basement</p>
+                                                            <p class="title">@building.SqFtGarageBasement</p>
+                                                        }
+
+                                                        if (building.SqFtGarageAttached > 0)
+                                                        {
+                                                            <p class="subtitle">Attached Garage</p>
+                                                            <p class="title">@building.SqFtGarageAttached</p>
+                                                        }
+
+                                                        if (building.SqFtOpenPorch > 0)
+                                                        {
+                                                            <p class="subtitle">Open Porch</p>
+                                                            <p class="title">@building.SqFtOpenPorch</p>
+                                                        }
+
+                                                        if (building.SqFtEnclosedPorch > 0)
+                                                        {
+                                                            <p class="subtitle">Enclosed Porch</p>
+                                                            <p class="title">@building.SqFtEnclosedPorch</p>
+                                                        }
+
+                                                        if (building.SqFtDeck > 0)
+                                                        {
+                                                            <p class="subtitle">Deck</p>
+                                                            <p class="title">@building.SqFtDeck</p>
+                                                        }
+
+                                                        if (!string.IsNullOrWhiteSpace(building.HeatSystem))
+                                                        {
+                                                            <p class="subtitle">Heat System</p>
+                                                            <p class="title">@building.HeatSystem</p>
+                                                        }
+
+                                                        if (!string.IsNullOrWhiteSpace(building.HeatSource))
+                                                        {
+                                                            <p class="subtitle">Heat Source</p>
+                                                            <p class="title">@building.HeatSource</p>
+                                                        }
+
+                                                        if (building.BrickStone > 0)
+                                                        {
+                                                            <p class="subtitle">Percent Brick or Stone</p>
+                                                            <p class="title">@building.BrickStone</p>
+                                                        }
+
+                                                        if (!string.IsNullOrWhiteSpace(building.ViewUtilization))
+                                                        {
+                                                            <p class="subtitle">View Utilization</p>
+                                                            <p class="title">@building.ViewUtilization</p>
+                                                        }
+
+                                                        if (building.Bedrooms > 0)
+                                                        {
+                                                            <p class="subtitle">Bedrooms</p>
+                                                            <p class="title">@building.Bedrooms</p>
+                                                        }
+
+                                                        if (building.BathHalfCount > 0)
+                                                        {
+                                                            <p class="subtitle">Half Baths</p>
+                                                            <p class="title">@building.BathHalfCount</p>
+                                                        }
+                                                        if (building.Bath3qtrCount > 0)
+                                                        {
+                                                            <p class="subtitle">3/4 Baths</p>
+                                                            <p class="title">@building.Bath3qtrCount</p>
+                                                        }
+                                                        if (building.BathFullCount > 0)
+                                                        {
+                                                            <p class="subtitle">Full Bath</p>
+                                                            <p class="title">@building.BathFullCount</p>
+                                                        }
+                                                        if (building.FpSingleStory > 0)
+                                                        {
+                                                            <p class="subtitle">Single Story Fireplace</p>
+                                                            <p class="title">@building.FpSingleStory</p>
+                                                        }
+                                                        if (building.FpMultiStory > 0)
+                                                        {
+                                                            <p class="subtitle">Multistory Fireplace</p>
+                                                            <p class="title">@building.FpMultiStory</p>
+                                                        }
+                                                        if (building.FpFreestanding > 0)
+                                                        {
+                                                            <p class="subtitle">Freestanding Fireplace</p>
+                                                            <p class="title">@building.FpFreestanding</p>
+                                                        }
+                                                        if (building.FpAdditional > 0)
+                                                        {
+                                                            <p class="subtitle">Additional Fireplace</p>
+                                                            <p class="title">@building.FpAdditional</p>
+                                                        }
+
+                                                        if (building.PcntComplete > 0)
+                                                        {
+                                                            <p class="subtitle">Percent Complete</p>
+                                                            <p class="title">@building.PcntComplete</p>
+                                                        }
+
+                                                        if (building.Obsolescence > 0)
+                                                        {
+                                                            <p class="subtitle">Obsolescence</p>
+                                                            <p class="title">@building.Obsolescence</p>
+                                                        }
+
+                                                        if (building.PcntNetCondition > 0)
+                                                        {
+                                                            <p class="subtitle">Percent Net Condition</p>
+                                                            <p class="title">@building.PcntNetCondition</p>
+                                                        }
+
+                                                        if (building.AddnlCost > 0)
+                                                        {
+                                                            <p class="subtitle">Additional Cost</p>
+                                                            <p class="title">@building.AddnlCost</p>
+                                                        }
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
-                                    }
+                                    </div>
+                                }
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+        }
+
+        @if (Model?.CommericalBuildings is not null && Model.CommericalBuildings.Any())
+        {
+            <section class="section container pt-3">
+                <p class="subtitle is-1" id="residentialBuildings">Commerical Buildings</p>
+                @foreach (var building in Model?.CommericalBuildings.OrderByDescending(x => x.BldgNbr))
+                {
+                    <div class="tile is-ancestor">
+                        <div class="tile is-parent">
+                            <article class="tile is-child is-white notification box">
+                                <div class="table-container">
+                                    <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+                                        <thead>
+                                            <tr>
+                                                <td>Building Description</td>
+                                                <td>Predominant Use</td>
+                                                <td>Shape</td>
+                                                <td>Construction Class</td>
+                                                <td>Building Quality</td>
+                                                <td>Gross Square Feet</td>
+                                                <td>Net Square Feet</td>
+                                                <td>Stories</td>
+                                                <td>Year Built</td>
+                                                <td>First Tax Year</td>
+                                                <td>Percent Complete</td>
+                                                <td>Heating System</td>
+                                                <td>Sprinklers</td>
+                                                <td>Elevators</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="is-selected">
+                                                <th>@building?.BldgDescr</th>
+                                                <th>@building?.PredominantUse</th>
+                                                <th>@building?.Shape</th>
+                                                <th>@building?.ConstrClass</th>
+                                                <th>@building?.BldgQuality</th>
+                                                <th>@building?.BldgGrossSqFt</th>
+                                                <th>@building?.BldgNetSqFt</th>
+                                                <th>@building?.NbrStories</th>
+                                                <th>@building?.YrBuilt</th>
+                                                <th>@building?.EffYr</th>
+                                                <th>@building?.PcntComplete</th>
+                                                <th>@building?.HeatingSystem</th>
+                                                <th>@building?.Sprinklers</th>
+                                                <th>@building.Elevators</th>
+                                            </tr>
+                                            @if (Model?.CommericalBuildingSections is not null && Model.CommericalBuildingSections.Where(x => x.BldgNbr == building.BldgNbr).Any())
+                                            {
+                                                <tr>
+                                                    <td>Section Use</td>
+                                                    <td>Section Description</td>
+                                                    <td>Stories</td>
+                                                    <td>Height per Story in Feet</td>
+                                                    <td>Gross Square Feet</td>
+                                                    <td>Net Square Feet</td>
+                                                </tr>
+                                                @foreach (var record in Model.CommericalBuildingSections.Where(x => x.BldgNbr == building.BldgNbr))
+                                                {
+                                                    <tr>
+                                                        <th>@record.SectionUse</th>
+                                                        <th>@record.SectionDescr</th>
+                                                        <th>@record.NbrStories</th>
+                                                        <th>@record.StoryHeight</th>
+                                                        <th>@record.GrossSqFt</th>
+                                                        <th>@record.NetSqFt</th>
+                                                    </tr>
+                                                    @if (Model?.CommericalBuildingFeatures is not null && Model.CommericalBuildingFeatures.Where(x => x.BldgNbr == building.BldgNbr).Any())
+                                                    {
+                                                        <tr>
+                                                            <td>Feature Type</td>
+                                                            <td>Gross Square Feet</td>
+                                                            <td>Net Square Feet</td>
+                                                        </tr>
+                                                        @foreach (var item in Model.CommericalBuildingFeatures.Where(x => x.BldgNbr == building.BldgNbr))
+                                                        {
+                                                            <tr>
+                                                                <th>@item.FeatureType</th>
+                                                                <th>@item.GrossSqFt</th>
+                                                                <th>@item.GrossSqFt</th>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
                                 </div>
                             </article>
                         </div>
@@ -1297,7 +1406,7 @@
                         <div class="tile is-parent">
                             <article class="tile is-child">
                                 <div class="columns is-multiline">
-                                    @foreach (var review in Model.Reviews)
+                                    @foreach (var review in Model.Reviews.OrderByDescending(x => x.BillYr))
                                     {
                                         <div class="column is-one-third">
                                             <div class="card">
@@ -1442,6 +1551,5 @@
                 </section>
             </div>
         }
-
     }
 }

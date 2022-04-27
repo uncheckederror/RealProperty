@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eRealProperty.Models;
 
@@ -10,9 +11,10 @@ using eRealProperty.Models;
 namespace eRealProperty.Migrations
 {
     [DbContext(typeof(eRealPropertyContext))]
-    partial class eRealPropertyContextModelSnapshot : ModelSnapshot
+    [Migration("20220426231936_CommericalBuildings")]
+    partial class CommericalBuildings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.3");
@@ -29,14 +31,14 @@ namespace eRealProperty.Migrations
                     b.Property<string>("BldgDescr")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("BldgGrossSqFt")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("BldgGrossSqFt")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("BldgNbr")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("BldgNbr")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("BldgNetSqFt")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("BldgNetSqFt")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("BldgQuality")
                         .HasColumnType("TEXT");
@@ -53,8 +55,8 @@ namespace eRealProperty.Migrations
                     b.Property<string>("DirectionSuffix")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("EffYr")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("EffYr")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Elevators")
                         .HasColumnType("TEXT");
@@ -74,17 +76,17 @@ namespace eRealProperty.Migrations
                     b.Property<string>("Minor")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("NbrBldgs")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("NbrBldgs")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("NbrStories")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("NbrStories")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ParcelNumber")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("PcntComplete")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("PcntComplete")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PredominantUse")
                         .HasColumnType("TEXT");
@@ -101,8 +103,8 @@ namespace eRealProperty.Migrations
                     b.Property<string>("StreetType")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("YrBuilt")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("YrBuilt")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ZipCode")
                         .HasColumnType("TEXT");
@@ -120,8 +122,8 @@ namespace eRealProperty.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("BldgNbr")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("BldgNbr")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("FeatureType")
                         .HasColumnType("TEXT");
@@ -157,8 +159,8 @@ namespace eRealProperty.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("BldgNbr")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("BldgNbr")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("GrossSqFt")
                         .HasColumnType("TEXT");

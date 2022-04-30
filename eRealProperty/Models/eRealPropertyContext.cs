@@ -18,6 +18,8 @@ namespace eRealProperty.Models
         public DbSet<CommericalBuilding> CommericalBuildings { get; set; }
         public DbSet<CommericalBuildingSection> CommericalBuildingSections { get; set; }
         public DbSet<CommericalBuildingFeature> CommericalBuildingFeatures { get; set; }
+        public DbSet<CondoComplex> CondoComplexes { get; set; }
+        public DbSet<CondoUnit> CondoUnits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -61,6 +63,12 @@ namespace eRealProperty.Models
                 .HasIndex(x => x.ParcelNumber);
 
             modelBuilder.Entity<CommericalBuildingFeature>()
+                .HasIndex(x => x.ParcelNumber);
+
+            modelBuilder.Entity<CondoComplex>()
+                .HasIndex(x => x.Major);
+
+            modelBuilder.Entity<CondoUnit>()
                 .HasIndex(x => x.ParcelNumber);
         }
 

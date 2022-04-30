@@ -106,6 +106,32 @@ namespace ServerSide
                 }
             }
 
+            if (!await db.CondoComplexes.AnyAsync())
+            {
+                Log.Information("Ingesting Condo Complexes.");
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM CondoComplexes;");
+                var bldgs = await CondoComplex.IngestAsync(db, config["DataSources:Condos"], config["DataSources:CondoComplexFileName"]);
+                if (bldgs)
+                {
+                    Log.Information($"Ingested {await db.CondoComplexes.CountAsync()} Condo Complexes.");
+                }
+                else
+                {
+                    Log.Fatal("Failed to ingest Condo Complexes.");
+                }
+
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM CondoUnits;");
+                bldgs = await CondoUnit.IngestAsync(db, config["DataSources:Condos"], config["DataSources:CondoUnitFileName"]);
+                if (bldgs)
+                {
+                    Log.Information($"Ingested {await db.CondoComplexes.CountAsync()} Condo Units.");
+                }
+                else
+                {
+                    Log.Fatal("Failed to ingest Condo Units.");
+                }
+            }
+
             if (!await db.LegalDiscriptions.AnyAsync())
             {
                 Log.Information("Ingesting Legal Descriptions.");

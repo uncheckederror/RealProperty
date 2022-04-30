@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eRealProperty.Models;
 
@@ -10,9 +11,10 @@ using eRealProperty.Models;
 namespace eRealProperty.Migrations
 {
     [DbContext(typeof(eRealPropertyContext))]
-    partial class eRealPropertyContextModelSnapshot : ModelSnapshot
+    [Migration("20220428184131_Condos")]
+    partial class Condos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.3");
@@ -384,8 +386,8 @@ namespace eRealProperty.Migrations
                     b.Property<string>("ParcelNumber")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PcntOwnership")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("PcntOwnership")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PersPropAcctNbr")
                         .HasColumnType("TEXT");

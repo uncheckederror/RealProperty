@@ -375,11 +375,11 @@
                                                             </p>
                                                         }
 
-                                                        <p class="subtitle">Warnings</p>
-
-                                                        <p class="title">
-                                                            @sale.SaleWarning
-                                                        </p>
+                                                        @if (!string.IsNullOrWhiteSpace(sale.SaleWarning))
+                                                        {
+                                                            <p class="subtitle">Warnings</p>
+                                                            <p class="title">@sale.SaleWarning</p>
+                                                        }
 
                                                         @if (!string.IsNullOrWhiteSpace(sale.PlatNbr))
                                                         {
@@ -1394,6 +1394,173 @@
                         </div>
                     </div>
                 }
+            </section>
+        }
+
+        @if (Model?.CondoComplexes is not null && Model.CondoComplexes.Any())
+        {
+            <section class="section container pt-3">
+                <div class="columns">
+                    @foreach (var complex in Model?.CondoComplexes)
+                    {
+                        <div class="column">
+                            <p class="subtitle is-1" id="condocomplex">Condo Complex</p>
+                            <article class="tile is-child is-white notification box">
+                                <p class="subtitle">Site Address</p>
+                                <p class="title">@complex.Address</p>
+                                <p class="subtitle">Complex Type</p>
+                                <p class="title">@complex.ComplexType</p>
+                                <p class="subtitle">Complex Description</p>
+                                <p class="title">@complex.ComplexDescr</p>
+                                <p class="subtitle">Condo Land Type</p>
+                                <p class="title">@complex.CondoLandType</p>
+                                <p class="subtitle">Number of Buildings</p>
+                                <p class="title">@complex.NbrBldgs</p>
+                                <p class="subtitle">Number of Stories</p>
+                                <p class="title">@complex.NbrStories</p>
+                                <p class="subtitle">Number of Units</p>
+                                <p class="title">@complex.NbrUnits</p>
+                                <p class="subtitle">Average Unit Size</p>
+                                <p class="title">@complex.AvgUnitSize</p>
+                                <p class="subtitle">Land Per Unit</p>
+                                <p class="title">@complex.LandPerUnit</p>
+                                <p class="subtitle">Project Location</p>
+                                <p class="title">@complex.ProjectLocation</p>
+                                <p class="subtitle">Project Appeal</p>
+                                <p class="title">@complex.ProjectAppeal</p>
+                                <p class="subtitle">Percent of Units with A View</p>
+                                <p class="title">@complex.PcntWithView</p>
+                                <p class="subtitle">Construction Class</p>
+                                <p class="title">@complex.ConstrClass</p>
+                                <p class="subtitle">Building Quality</p>
+                                <p class="title">@complex.BldgQuality</p>
+                                <p class="subtitle">Condition</p>
+                                <p class="title">@complex.Condition</p>
+                                <p class="subtitle">Year Built</p>
+                                <p class="title">@complex.YrBuilt</p>
+                                <p class="subtitle">First Tax Year</p>
+                                <p class="title">@complex.EffYr</p>
+                                <p class="subtitle">Percent Complete</p>
+                                <p class="title">@complex.PcntComplete</p>
+                                <p class="subtitle">Elevators</p>
+                                <p class="title">@complex.Elevators</p>
+                                <p class="subtitle">Security System</p>
+                                <p class="title">@complex.SectySystem</p>
+                                <p class="subtitle">Fireplace</p>
+                                <p class="title">@complex.Fireplace</p>
+                                <p class="subtitle">Laundry</p>
+                                <p class="title">@complex.Laundry</p>
+                                <p class="subtitle">Converted from Apartments</p>
+                                <p class="title">@complex.AptConversion</p>
+                            </article>
+                        </div>
+                    }
+                    @if (Model?.CondoUnits is not null && Model.CondoUnits.Any())
+                    {
+                        @foreach (var unit in Model?.CondoUnits)
+                        {
+                            <div class="column">
+                                <p class="subtitle is-1" id="condounit">Unit @unit.UnitNbr</p>
+                                <article class="tile is-child is-info notification box">
+                                    <p class="subtitle">Site Address</p>
+                                    <p class="title">@unit.Address</p>
+                                    <p class="subtitle">Building Number</p>
+                                    <p class="title">@unit.BldgNbr</p>
+                                    <p class="subtitle">Floor Number</p>
+                                    <p class="title">@unit.FloorNbr</p>
+                                    <p class="subtitle">Unit Type</p>
+                                    <p class="title">@unit.UnitType</p>
+                                    <p class="subtitle">Unit Quality</p>
+                                    <p class="title">@unit.UnitQuality</p>
+                                    <p class="subtitle">Location</p>
+                                    <p class="title">@unit.UnitLoc</p>
+                                    <p class="subtitle">Unit Condition</p>
+                                    <p class="title">@unit.Condition</p>
+
+                                    <p class="subtitle">Unit Size</p>
+                                    <p class="title">@unit.Footage @unit.UnitOfMeasure</p>
+                                    <p class="subtitle">Number of Bedrooms</p>
+                                    <p class="title">@unit.NbrBedrooms</p>
+                                    @if (unit.BathHalfCount > 0)
+                                    {
+                                        <p class="subtitle">1/2 Bathrooms</p>
+                                        <p class="title">@unit.BathHalfCount</p>
+                                    }
+                                    @if (unit.Bath3qtrCount > 0)
+                                    {
+                                        <p class="subtitle">3/4 Bathrooms</p>
+                                        <p class="title">@unit.Bath3qtrCount</p>
+                                    }
+                                    @if (unit.BathFullCount > 0)
+                                    {
+                                        <p class="subtitle">Full Bathrooms</p>
+                                        <p class="title">@unit.BathFullCount</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(unit.OtherRoom))
+                                    {
+                                        <p class="subtitle">Other Rooms</p>
+                                        <p class="title">@unit.OtherRoom</p>
+                                    }
+                                    <p class="subtitle">Fireplace</p>
+                                    <p class="title">@unit.Fireplace</p>
+                                    <p class="subtitle">Top Floor</p>
+                                    <p class="title">@unit.TopFloor</p>
+                                    <p class="subtitle">End Unit</p>
+                                    <p class="title">@unit.EndUnit</p>
+
+                                    @if (unit.PkgOpen + unit.PkgGarageTandem + unit.PkgGarage + unit.PkgCarport + unit.PkgBasementTandem + unit.PkgBasement > 0)
+                                    {
+                                        <p class="subtitle">Open-air Parking</p>
+                                        <p class="title">@unit.PkgOpen</p>
+                                        <p class="subtitle">Carport Parking</p>
+                                        <p class="title">@unit.PkgCarport</p>
+                                        <p class="subtitle">Basement Parking</p>
+                                        <p class="title">@unit.PkgBasement</p>
+                                        <p class="subtitle">Tandem Basement Parking</p>
+                                        <p class="title">@unit.PkgBasementTandem</p>
+                                        <p class="subtitle">Garage Parking</p>
+                                        <p class="title">@unit.PkgGarage</p>
+                                        <p class="subtitle">Tandem Garage Parking</p>
+                                        <p class="title">@unit.PkgGarageTandem</p>
+                                        <p class="subtitle">Other Parking</p>
+                                        <p class="title">@unit.PkgOtherType</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="subtitle">Parking</p>
+                                        <p class="title">None</p>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(unit.ViewMountain))
+                                    {
+                                        <p class="subtitle">Mountain View</p>
+                                        <p class="title">@unit.ViewMountain</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(unit.ViewMountain))
+                                    {
+                                        <p class="subtitle">Lake or River View</p>
+                                        <p class="title">@unit.ViewLakeRiver</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(unit.ViewMountain))
+                                    {
+                                        <p class="subtitle">City or Territorial View</p>
+                                        <p class="title">@unit.ViewCityTerritorial</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(unit.ViewMountain))
+                                    {
+                                        <p class="subtitle">Puget Sound View</p>
+                                        <p class="title">@unit.ViewPugetSound</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(unit.ViewMountain))
+                                    {
+                                        <p class="subtitle">Lake Washington or Lake Sammamish View</p>
+                                        <p class="title">@unit.ViewLakeWaSamm</p>
+                                    }
+                                </article>
+                            </div>
+                        }
+                    }
+                </div>
             </section>
         }
 

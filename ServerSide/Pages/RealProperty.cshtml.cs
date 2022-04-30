@@ -25,6 +25,8 @@ namespace ServerSide.Pages
         public CommericalBuilding[] CommericalBuildings { get; set; }
         public CommericalBuildingSection[] CommericalBuildingSections { get; set; }
         public CommericalBuildingFeature[] CommericalBuildingFeatures { get; set; }
+        public CondoComplex[] CondoComplexes { get; set; }
+        public CondoUnit[] CondoUnits { get; set; }
         public RealPropertyModel(eRealPropertyContext context)
         {
             _context = context;
@@ -74,19 +76,17 @@ namespace ServerSide.Pages
 
             if (RealPropertyAccounts is not null && RealPropertyAccounts.Count() == 1)
             {
-                var parcelQuery = RealPropertyAccounts.FirstOrDefault().ParcelNumber;
-                var major = RealPropertyAccounts.FirstOrDefault().Major;
-                var minor = RealPropertyAccounts.FirstOrDefault().Minor;
+                var taxAccount = RealPropertyAccounts.FirstOrDefault();
 
-                Parcels = await _context.PropertyParcels.Where(x => x.ParcelNumber == parcelQuery).AsNoTracking().ToListAsync();
+                Parcels = await _context.PropertyParcels.Where(x => x.ParcelNumber == taxAccount.ParcelNumber).AsNoTracking().ToListAsync();
 
-                TaxYears = await _context.RealPropertyAccountTaxYears.Where(x => x.ParcelNumber == parcelQuery).OrderByDescending(x => x.TaxYr).AsNoTracking().ToListAsync();
+                TaxYears = await _context.RealPropertyAccountTaxYears.Where(x => x.ParcelNumber == taxAccount.ParcelNumber).OrderByDescending(x => x.TaxYr).AsNoTracking().ToListAsync();
 
-                ResidentialBuildings = await _context.ResidentialBuildings.Where(x => x.ParcelNumber == parcelQuery).AsNoTracking().ToListAsync();
+                ResidentialBuildings = await _context.ResidentialBuildings.Where(x => x.ParcelNumber == taxAccount.ParcelNumber).AsNoTracking().ToListAsync();
 
-                Sales = await _context.Sales.Where(x => x.Major == major && x.Minor == minor).AsNoTracking().ToArrayAsync();
+                Sales = await _context.Sales.Where(x => x.Major == taxAccount.Major && x.Minor == taxAccount.Minor).AsNoTracking().ToArrayAsync();
 
-                Reviews = await _context.Reviews.Where(x => x.Major == major && x.Minor == minor).AsNoTracking().ToArrayAsync();
+                Reviews = await _context.Reviews.Where(x => x.Major == taxAccount.Major && x.Minor == taxAccount.Minor).AsNoTracking().ToArrayAsync();
 
                 foreach (var review in Reviews)
                 {
@@ -94,7 +94,7 @@ namespace ServerSide.Pages
                     review.FinalValue = await _context.ReviewDescriptions.Where(x => x.AppealNbr == review.AppealNbr && x.ValuationType == "Board Order Value").FirstOrDefaultAsync();
                 }
 
-                Permits = await _context.Permits.Where(x => x.ParcelNumber == parcelQuery).ToArrayAsync();
+                Permits = await _context.Permits.Where(x => x.ParcelNumber == taxAccount.ParcelNumber).ToArrayAsync();
 
                 foreach (var permit in Permits)
                 {
@@ -102,9 +102,16 @@ namespace ServerSide.Pages
                     permit.ProjectName = !string.IsNullOrWhiteSpace(description?.ItemValue) ? description.ItemValue : string.Empty;
                 }
 
-                CommericalBuildings = await _context.CommericalBuildings.Where(x => x.ParcelNumber == parcelQuery).ToArrayAsync();
-                CommericalBuildingSections = await _context.CommericalBuildingSections.Where(x => x.ParcelNumber == parcelQuery).ToArrayAsync();
-                CommericalBuildingFeatures = await _context.CommericalBuildingFeatures.Where(x => x.ParcelNumber == parcelQuery).ToArrayAsync();
+                CommericalBuildings = await _context.CommericalBuildings.Where(x => x.ParcelNumber == taxAccount.ParcelNumber).ToArrayAsync();
+                CommericalBuildingSections = await _context.CommericalBuildingSections.Where(x => x.ParcelNumber == taxAccount.ParcelNumber).ToArrayAsync();
+                CommericalBuildingFeatures = await _context.CommericalBuildingFeatures.Where(x => x.ParcelNumber == taxAccount.ParcelNumber).ToArrayAsync();
+
+                CondoComplexes = await _context.CondoComplexes.Where(x => x.Major == taxAccount.Major).ToArrayAsync();
+                CondoUnits = await _context.CondoUnits.Where(x => x.ParcelNumber == taxAccount.ParcelNumber).ToArrayAsync();
+                if (CondoUnits is not null && CondoUnits.Any())
+                {
+                    Parcels = await _context.PropertyParcels.Where(x => x.Major == taxAccount.Major).AsNoTracking().ToListAsync();
+                }
             }
         }
     }

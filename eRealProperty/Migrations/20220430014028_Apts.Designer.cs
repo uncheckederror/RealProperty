@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eRealProperty.Models;
 
@@ -10,9 +11,10 @@ using eRealProperty.Models;
 namespace eRealProperty.Migrations
 {
     [DbContext(typeof(eRealPropertyContext))]
-    partial class eRealPropertyContextModelSnapshot : ModelSnapshot
+    [Migration("20220430014028_Apts")]
+    partial class Apts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.3");
@@ -1475,46 +1477,6 @@ namespace eRealProperty.Migrations
                     b.HasIndex("LevyCode");
 
                     b.ToTable("LevyCodes");
-                });
-
-            modelBuilder.Entity("eRealProperty.Models.UnitBreakdown", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("IngestedOn")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Major")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Minor")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NbrBaths")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NbrBedrooms")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("NbrThisType")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ParcelNumber")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("SqFt")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("UnitTypeItemId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParcelNumber");
-
-                    b.ToTable("UnitBreakdowns");
                 });
 #pragma warning restore 612, 618
         }

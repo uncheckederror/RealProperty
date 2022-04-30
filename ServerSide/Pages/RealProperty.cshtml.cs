@@ -27,6 +27,9 @@ namespace ServerSide.Pages
         public CommericalBuildingFeature[] CommericalBuildingFeatures { get; set; }
         public CondoComplex[] CondoComplexes { get; set; }
         public CondoUnit[] CondoUnits { get; set; }
+        public ApartmentComplex[] ApartmentComplexes { get; set; }
+        public UnitBreakdown[] UnitBreakdowns { get; set; }
+
         public RealPropertyModel(eRealPropertyContext context)
         {
             _context = context;
@@ -112,6 +115,9 @@ namespace ServerSide.Pages
                 {
                     Parcels = await _context.PropertyParcels.Where(x => x.Major == taxAccount.Major).AsNoTracking().ToListAsync();
                 }
+
+                ApartmentComplexes = await _context.ApartmentComplexes.Where(x => x.ParcelNumber == taxAccount.ParcelNumber).ToArrayAsync();
+                UnitBreakdowns = await _context.UnitBreakdowns.Where(x => x.ParcelNumber == taxAccount.ParcelNumber).ToArrayAsync();
             }
         }
     }

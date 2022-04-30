@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eRealProperty.Models;
 
@@ -10,9 +11,10 @@ using eRealProperty.Models;
 namespace eRealProperty.Migrations
 {
     [DbContext(typeof(eRealPropertyContext))]
-    partial class eRealPropertyContextModelSnapshot : ModelSnapshot
+    [Migration("20220430020911_UnitBreakdown")]
+    partial class UnitBreakdown
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.3");
@@ -1498,14 +1500,14 @@ namespace eRealProperty.Migrations
                     b.Property<string>("NbrBedrooms")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("NbrThisType")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("NbrThisType")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ParcelNumber")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("SqFt")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("SqFt")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UnitTypeItemId")
                         .HasColumnType("TEXT");

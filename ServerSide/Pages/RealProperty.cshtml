@@ -404,6 +404,14 @@
                 </section>
             </div>
         }
+        else
+        {
+            <div class="level has-background-info">
+                <section class="section container">
+                    <p class="subtitle is-1 has-text-white" id="sales">No Sales Found</p>
+                </section>
+            </div>
+        }
 
         @if (Model?.Parcels is not null && Model.Parcels.Any())
         {
@@ -1556,6 +1564,81 @@
                                         <p class="subtitle">Lake Washington or Lake Sammamish View</p>
                                         <p class="title">@unit.ViewLakeWaSamm</p>
                                     }
+                                </article>
+                            </div>
+                        }
+                    }
+                </div>
+            </section>
+        }
+
+        @if (Model?.ApartmentComplexes is not null && Model.ApartmentComplexes.Any())
+        {
+            <section class="section container pt-3">
+                <div class="columns">
+                    @foreach (var complex in Model?.ApartmentComplexes)
+                    {
+                        <div class="column">
+                            <p class="subtitle is-1" id="condocomplex">Apartment Complex</p>
+                            <article class="tile is-child is-white notification box">
+                                <p class="subtitle">Site Address</p>
+                                <p class="title">@complex.Address</p>
+                                <p class="subtitle">Complex Description</p>
+                                <p class="title">@complex.ComplexDescr</p>
+                                <p class="subtitle">Number of Buildings</p>
+                                <p class="title">@complex.NbrBldgs</p>
+                                <p class="subtitle">Number of Stories</p>
+                                <p class="title">@complex.NbrStories</p>
+                                <p class="subtitle">Number of Units</p>
+                                <p class="title">@complex.NbrUnits</p>
+                                <p class="subtitle">Average Unit Size</p>
+                                <p class="title">@complex.AvgUnitSize</p>
+                                <p class="subtitle">Project Location</p>
+                                <p class="title">@complex.ProjectLocation</p>
+                                <p class="subtitle">Project Appeal</p>
+                                <p class="title">@complex.ProjectAppeal</p>
+                                <p class="subtitle">Percent of Units with A View</p>
+                                <p class="title">@complex.PcntWithView</p>
+                                <p class="subtitle">Construction Class</p>
+                                <p class="title">@complex.ConstrClass</p>
+                                <p class="subtitle">Building Quality</p>
+                                <p class="title">@complex.BldgQuality</p>
+                                <p class="subtitle">Condition</p>
+                                <p class="title">@complex.Condition</p>
+                                <p class="subtitle">Year Built</p>
+                                <p class="title">@complex.YrBuilt</p>
+                                <p class="subtitle">First Tax Year</p>
+                                <p class="title">@complex.EffYr</p>
+                                <p class="subtitle">Percent Complete</p>
+                                <p class="title">@complex.PcntComplete</p>
+                                <p class="subtitle">Elevators</p>
+                                <p class="title">@complex.Elevators</p>
+                                <p class="subtitle">Security System</p>
+                                <p class="title">@complex.SectySystem</p>
+                                <p class="subtitle">Fireplace</p>
+                                <p class="title">@complex.Fireplace</p>
+                                <p class="subtitle">Laundry</p>
+                                <p class="title">@complex.Laundry</p>
+                            </article>
+                        </div>
+                    }
+                    @if (Model?.UnitBreakdowns is not null && Model.UnitBreakdowns.Any())
+                    {
+                        @foreach (var unit in Model?.UnitBreakdowns)
+                        {
+                            <div class="column">
+                                <p class="subtitle is-1" id="condounit">Unit Breakdown</p>
+                                <article class="tile is-child is-info notification box">
+                                    <p class="subtitle">Unit Type</p>
+                                    <p class="title">@unit.UnitTypeItemId</p>
+                                    <p class="subtitle">Number of Unit Type</p>
+                                    <p class="title">@unit.NbrThisType</p>
+                                    <p class="subtitle">Sqft</p>
+                                    <p class="title">@unit.SqFt</p>
+                                    <p class="subtitle">Number of Bedrooms</p>
+                                    <p class="title">@unit.NbrBedrooms</p>
+                                    <p class="subtitle">Number of Baths</p>
+                                    <p class="title">@unit.NbrBaths</p>
                                 </article>
                             </div>
                         }

@@ -22,57 +22,107 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public string Major { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string Minor { get; set; }
         [Ignore]
         public string ParcelNumber { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public int BldgNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(3)]
         public int NbrLivingUnits { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(4)]
         public string Address { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(5)]
         public string BuildingNumber { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(6)]
         public string Fraction { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(7)]
         public string DirectionPrefix { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(8)]
         public string StreetName { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(9)]
         public string StreetType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(10)]
         public string DirectionSuffix { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(11)]
         public string ZipCode { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(12)]
         public string Stories { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(13)]
         public string BldgGrade { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(14)]
         public int BldgGradeVar { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(15)]
         public int SqFt1stFloor { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(16)]
         public int SqFtHalfFloor { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(17)]
         public int SqFt2ndFloor { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(18)]
         public int SqFtUpperFloor { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(19)]
         public int SqFtUnfinFull { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(20)]
         public int SqFtUnfinHalf { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(21)]
         public int SqFtTotLiving { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(22)]
         public int SqFtTotBasement { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(23)]
         public int SqFtFinBasement { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(24)]
         public string FinBasementGrade { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(25)]
         public int SqFtGarageBasement { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(26)]
         public int SqFtGarageAttached { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(27)]
         public string DaylightBasement { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(28)]
         public int SqFtOpenPorch { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(29)]
         public int SqFtEnclosedPorch { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(30)]
         public int SqFtDeck { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(31)]
         public string HeatSystem { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(32)]
         public string HeatSource { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(33)]
         public int BrickStone { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(34)]
         public string ViewUtilization { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(35)]
         public int Bedrooms { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(36)]
         public int BathHalfCount { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(37)]
         public int Bath3qtrCount { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(38)]
         public int BathFullCount { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(39)]
         public int FpSingleStory { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(40)]
         public int FpMultiStory { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(41)]
         public int FpFreestanding { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(42)]
         public int FpAdditional { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(43)]
         public int YrBuilt { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(44)]
         public int YrRenovated { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(45)]
         public int PcntComplete { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(46)]
         public int Obsolescence { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(47)]
         public int PcntNetCondition { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(48)]
         public string Condition { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(49)]
         public int AddnlCost { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }

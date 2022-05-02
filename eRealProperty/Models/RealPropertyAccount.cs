@@ -92,12 +92,13 @@ namespace eRealProperty.Models
             {
                 NewLine = Environment.NewLine,
                 Delimiter = ",",
+                BadDataFound = null,
                 MissingFieldFound = null,
                 CacheFields = true
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var command = context.Database.GetDbConnection().CreateCommand();

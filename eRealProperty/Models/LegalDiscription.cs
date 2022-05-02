@@ -2,16 +2,11 @@
 using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
 
-using Flurl.Http;
-
 using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace eRealProperty.Models
@@ -32,45 +27,15 @@ namespace eRealProperty.Models
         [Ignore]
         public DateTime IngestedOn { get; set; }
 
-        public static async Task<bool> IngestAsync(eRealPropertyContext context, string zipUrl, string fileName)
+        public static async Task<bool> IngestAsync(eRealPropertyContext context, string pathToCSV, CsvConfiguration config)
         {
-            if (string.IsNullOrWhiteSpace(zipUrl) || string.IsNullOrWhiteSpace(fileName))
+            if (string.IsNullOrWhiteSpace(pathToCSV) || context is null || config is null)
             {
                 return false;
             }
 
-            var pathtoFile = await zipUrl.DownloadFileAsync(AppContext.BaseDirectory);
-            var pathToCSV = Path.Combine(AppContext.BaseDirectory, fileName);
-
-            var fileTypes = new string[] { ".txt", ".csv" };
-            // If a file with the same name already exists it will break the downloading process, so we need to make sure they are deleted.
-            foreach (var type in fileTypes)
-            {
-                var filePath = Path.Combine(AppContext.BaseDirectory, Path.GetFileNameWithoutExtension(pathtoFile) + type);
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
-            }
-
-            if (!File.Exists(pathToCSV))
-            {
-                ZipFile.ExtractToDirectory(pathtoFile, AppContext.BaseDirectory);
-            }
-
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                NewLine = Environment.NewLine,
-                Delimiter = ",",
-                MissingFieldFound = null,
-                BadDataFound = null,
-                CacheFields = true,
-                Encoding = System.Text.Encoding.ASCII,
-                TrimOptions = TrimOptions.InsideQuotes
-            };
-
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
+            using var reader = new StreamReader(pathToCSV, config.Encoding);
             using var csv = new CsvReader(reader, config);
 
             var records = csv.GetRecordsAsync<LegalDiscription>();

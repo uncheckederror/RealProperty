@@ -68,7 +68,7 @@ namespace ServerSide
                 }
             }
 
-            if (true)
+            if (!await db.CommericalBuildings.AnyAsync())
             {
                 Log.Information("Ingesting Commerical Buildings.");
                 await db.Database.ExecuteSqlRawAsync("DELETE FROM CommericalBuildings;");
@@ -106,7 +106,7 @@ namespace ServerSide
                 }
             }
 
-            if (!await db.CondoComplexes.AnyAsync())
+            if (true)
             {
                 Log.Information("Ingesting Condo Complexes.");
                 await db.Database.ExecuteSqlRawAsync("DELETE FROM CondoComplexes;");

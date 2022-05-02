@@ -651,13 +651,19 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public string Major { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string Minor { get; set; }
         [Ignore]
         public string ParcelNumber { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public int BldgNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(3)]
         public string FeatureType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(4)]
         public string GrossSqFt { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(5)]
         public string NetSqFt { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
@@ -691,13 +697,16 @@ namespace eRealProperty.Models
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 NewLine = Environment.NewLine,
+                Delimiter = ",",
                 MissingFieldFound = null,
+                BadDataFound = null,
                 CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
                 TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var records = csv.GetRecordsAsync<CommericalBuildingFeature>();
@@ -807,17 +816,27 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public string Major { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string Minor { get; set; }
         [Ignore]
         public string ParcelNumber { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public int BldgNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(3)]
         public string SectionNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(4)]
         public string SectionUse { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(5)]
         public string NbrStories { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(6)]
         public string StoryHeight { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(7)]
         public string GrossSqFt { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(8)]
         public string NetSqFt { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(9)]
         public string SectionDescr { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
@@ -850,13 +869,16 @@ namespace eRealProperty.Models
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 NewLine = Environment.NewLine,
+                Delimiter = ",",
                 MissingFieldFound = null,
+                BadDataFound = null,
                 CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
                 TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var records = csv.GetRecordsAsync<CommericalBuildingSection>();

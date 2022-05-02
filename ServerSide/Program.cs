@@ -38,7 +38,7 @@ namespace ServerSide
             await db.Database.MigrateAsync();
 
             // Load the data if there's nothing in the database.
-            if (true)
+            if (!await db.RealPropertyAccounts.AnyAsync())
             {
                 Log.Information("Ingesting Real Accounts");
                 await db.Database.ExecuteSqlRawAsync("DELETE FROM RealPropertyAccounts;");
@@ -68,7 +68,7 @@ namespace ServerSide
                 }
             }
 
-            if (!await db.CommericalBuildings.AnyAsync())
+            if (true)
             {
                 Log.Information("Ingesting Commerical Buildings.");
                 await db.Database.ExecuteSqlRawAsync("DELETE FROM CommericalBuildings;");

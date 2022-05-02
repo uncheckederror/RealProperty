@@ -86,7 +86,10 @@ namespace eRealProperty.Models
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 NewLine = Environment.NewLine,
-                CacheFields = true
+                MissingFieldFound = null,
+                BadDataFound = null,
+                CacheFields = true,
+                TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();

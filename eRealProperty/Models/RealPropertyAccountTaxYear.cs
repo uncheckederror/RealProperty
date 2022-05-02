@@ -71,7 +71,9 @@ namespace eRealProperty.Models
             {
                 NewLine = Environment.NewLine,
                 MissingFieldFound = null,
-                CacheFields = true
+                BadDataFound = null,
+                CacheFields = true,
+                TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();

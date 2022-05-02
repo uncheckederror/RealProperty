@@ -84,6 +84,7 @@ namespace eRealProperty.Models
             {
                 NewLine = Environment.NewLine,
                 MissingFieldFound = null,
+                BadDataFound = null,
                 CacheFields = true,
                 TrimOptions = TrimOptions.InsideQuotes
             };

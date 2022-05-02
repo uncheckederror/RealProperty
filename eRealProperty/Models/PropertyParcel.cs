@@ -21,88 +21,169 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public string Major { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string Minor { get; set; }
         [Ignore]
         public string ParcelNumber { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public string PropName { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(3)]
         public string PlatName { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(4)]
         public string PlatLot { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(5)]
         public string PlatBlock { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(6)]
         public int Range { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(7)]
         public int Township { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(8)]
         public int Section { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(9)]
         public string QuarterSection { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(10)]
         public string PropType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(11)]
         public string Area { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(12)]
         public string SubArea { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(13)]
         public string SpecArea { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(14)]
         public string SpecSubArea { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(15)]
         public string DistrictName { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(16)]
         public string LevyCode { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(17)]
         public string CurrentZoning { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(18)]
         public string HBUAsIfVacant { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(19)]
         public string HBUAsImproved { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(20)]
         public string PresentUse { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(21)]
         public string SqFtLot { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(22)]
         public string WaterSystem { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(23)]
         public string SewerSystem { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(24)]
         public string Access { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(25)]
         public string Topography { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(26)]
         public string StreetSurface { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(27)]
         public string RestrictiveSzShape { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(28)]
         public string InadequateParking { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(29)]
         public string PcntUnusable { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(30)]
         public string Unbuildable { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(31)]
         public string MtRainier { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(32)]
         public string Olympics { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(33)]
         public string Cascades { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(34)]
         public string Territorial { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(35)]
         public string SeattleSkyline { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(36)]
         public string PugetSound { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(37)]
         public string LakeWashington { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(38)]
         public string LakeSammamish { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(39)]
         public string SmallLakeRiverCreek { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(40)]
         public string OtherView { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(41)]
         public string WfntLocation { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(42)]
         public string WfntFootage { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(43)]
         public string WfntBank { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(44)]
         public string WfntPoorQuality { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(45)]
         public string WfntRestrictedAccess { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(46)]
         public string WfntAccessRights { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(47)]
         public string WfntProximityInfluence { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(48)]
         public string TidelandShoreland { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(49)]
         public string LotDepthFactor { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(50)]
         public string TrafficNoise { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(51)]
         public string AirportNoise { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(52)]
         public string PowerLines { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(53)]
         public string OtherNuisances { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(54)]
         public string NbrBldgSites { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(55)]
         public string Contamination { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(56)]
         public string DNRLease { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(57)]
         public string AdjacentGolfFairway { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(58)]
         public string AdjacentGreenbelt { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(59)]
         public string HistoricSite { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(60)]
         public string CurrentUseDesignation { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(61)]
         public string NativeGrowthProtEsmt { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(62)]
         public string Easements { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(63)]
         public string OtherDesignation { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(64)]
         public string DeedRestrictions { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(65)]
         public string DevelopmentRightsPurch { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(66)]
         public string CoalMineHazard { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(67)]
         public string CriticalDrainage { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(68)]
         public string ErosionHazard { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(69)]
         public string LandfillBuffer { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(70)]
         public string HundredYrFloodPlain { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(71)]
         public string SeismicHazard { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(72)]
         public string LandslideHazard { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(73)]
         public string SteepSlopeHazard { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(74)]
         public string Stream { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(75)]
         public string Wetland { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(76)]
         public string SpeciesOfConcern { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(77)]
         public string SensitiveAreaTract { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(78)]
         public string WaterProblems { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(79)]
         public string TranspConcurrency { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(80)]
         public string OtherProblems { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
@@ -140,11 +221,12 @@ namespace eRealProperty.Models
                 MissingFieldFound = null,
                 BadDataFound = null,
                 CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
                 TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var command = context.Database.GetDbConnection().CreateCommand();

@@ -21,17 +21,27 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public string Major { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string Minor { get; set; }
         [Ignore]
         public string ParcelNumber { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public string PermitNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(3)]
         public string PermitType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(4)]
         public DateTime IssueDate { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(5)]
         public int PermitVal { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(6)]
         public string PermitStatus { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(7)]
         public string PcntComplete { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(8)]
         public string UpdatedBy { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(9)]
         public DateTime UpdateDate { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
@@ -68,13 +78,16 @@ namespace eRealProperty.Models
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 NewLine = Environment.NewLine,
+                Delimiter = ",",
                 MissingFieldFound = null,
                 BadDataFound = null,
-                CacheFields = true
+                CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
+                TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var records = csv.GetRecordsAsync<Permit>();
@@ -190,8 +203,11 @@ namespace eRealProperty.Models
     {
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public string PermitNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string PermitItem { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public string ItemValue { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
@@ -229,11 +245,12 @@ namespace eRealProperty.Models
                 MissingFieldFound = null,
                 BadDataFound = null,
                 CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
                 TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var records = csv.GetRecordsAsync<PermitDetailHistory>();

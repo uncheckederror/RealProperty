@@ -20,28 +20,49 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public string Major { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string Minor { get; set; }
         [Ignore]
         public string ParcelNumber { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public string ComplexDescr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(3)]
         public int NbrBldgs { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(4)]
         public int NbrStories { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(5)]
         public int NbrUnits { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(6)]
         public int AvgUnitSize { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(7)]
         public string ProjectLocation { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(8)]
         public string ProjectAppeal { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(9)]
         public string PcntWithView { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(10)]
         public string ConstrClass { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(11)]
         public string BldgQuality { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(12)]
         public string Condition { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(13)]
         public int YrBuilt { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(14)]
         public int EffYr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(15)]
         public string PcntComplete { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(16)]
         public string Elevators { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(17)]
         public string SectySystem { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(18)]
         public string Fireplace { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(19)]
         public string Laundry { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(20)]
         public string Address { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
@@ -79,11 +100,12 @@ namespace eRealProperty.Models
                 MissingFieldFound = null,
                 BadDataFound = null,
                 CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
                 TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var records = csv.GetRecordsAsync<ApartmentComplex>();

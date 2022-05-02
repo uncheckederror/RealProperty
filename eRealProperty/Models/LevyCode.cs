@@ -20,8 +20,11 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public string DistrictAbbrev { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string LevyCode { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public string DistrictName { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
@@ -59,11 +62,12 @@ namespace eRealProperty.Models
                 MissingFieldFound = null,
                 BadDataFound = null,
                 CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
                 TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var command = context.Database.GetDbConnection().CreateCommand();

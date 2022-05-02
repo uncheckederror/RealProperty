@@ -21,32 +21,57 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public string AppealNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string Major { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public string Minor { get; set; }
         [Ignore]
         public string ParcelNumber { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(3)]
         public int BillYr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(4)]
         public string ReviewType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(5)]
         public string ReviewSource { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(6)]
         public string AssrRecommendation { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(7)]
         public string RespAppr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(8)]
         public string RelatedAppealNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(9)]
         public string Agent { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(10)]
         public string ValueType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(11)]
         public string AppellantReason { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(12)]
         public string StatusAssessor { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(13)]
         public string StatusStipulation { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(14)]
         public string StatusBoard { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(15)]
         public string StatusAssmtReview { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(16)]
         public DateTime HearingDate { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(17)]
         public string HearingType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(18)]
         public string HearingResult { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(19)]
         public string OrderTerm { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(20)]
         public string BoardReason { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(21)]
         public string AppealRecommended { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(22)]
         public string UpdatedBy { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(23)]
         public DateTime UpdateDate { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(24)]
         public string NoteId { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
@@ -90,12 +115,15 @@ namespace eRealProperty.Models
                 MissingFieldFound = null,
                 BadDataFound = null,
                 CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
                 TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
+
+            var records = csv.GetRecordsAsync<Review>();
 
             var command = context.Database.GetDbConnection().CreateCommand();
             command.CommandText =
@@ -213,8 +241,6 @@ namespace eRealProperty.Models
             var IngestedOn = command.CreateParameter();
             IngestedOn.ParameterName = "$IngestedOn";
             command.Parameters.Add(IngestedOn);
-
-            var records = csv.GetRecordsAsync<Review>();
 
             await foreach (var record in records)
             {
@@ -511,15 +537,25 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public string AppealNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string EntryType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public DateTime EntryDate { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(3)]
         public string SourcePerson { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(4)]
         public string TargetPerson { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(5)]
         public string ValuationType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(6)]
         public int ApprLandVal { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(7)]
         public int ApprImpsVal { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(8)]
         public string UpdatedBy { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(9)]
         public DateTime UpdateDate { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
@@ -553,12 +589,16 @@ namespace eRealProperty.Models
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 NewLine = Environment.NewLine,
+                Delimiter = ",",
                 MissingFieldFound = null,
-                CacheFields = true
+                BadDataFound = null,
+                CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
+                TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var command = context.Database.GetDbConnection().CreateCommand();

@@ -20,14 +20,21 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public string Major { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string Minor { get; set; }
         [Ignore]
         public string ParcelNumber { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public string UnitTypeItemId { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(3)]
         public int NbrThisType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(4)]
         public int SqFt { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(5)]
         public string NbrBedrooms { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(6)]
         public string NbrBaths { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
@@ -65,11 +72,12 @@ namespace eRealProperty.Models
                 MissingFieldFound = null,
                 BadDataFound = null,
                 CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
                 TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var records = csv.GetRecordsAsync<UnitBreakdown>();

@@ -22,31 +22,55 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(0)]
         public int ExciseTaxNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string Major { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(2)]
         public string Minor { get; set; }
         [Ignore]
         public string ParcelNumber { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(3)]
         public DateTime DocumentDate { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(4)]
         public long SalePrice { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(5)]
         public string RecordingNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(6)]
         public string Volume { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(7)]
         public string Page { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(8)]
         public string PlatNbr { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(9)]
         public string PlatType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(10)]
         public string PlatLot { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(11)]
         public string PlatBlock { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(12)]
         public string SellerName { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(13)]
         public string BuyerName { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(14)]
         public string PropertyType { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(15)]
         public string PrincipalUse { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(16)]
         public string SaleInstrument { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(17)]
         public char AFForestLand { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(18)]
         public char AFCurrentUseLand { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(19)]
         public char AFNonProfitUse { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(20)]
         public char AFHistoricProperty { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(21)]
         public string SaleReason { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(22)]
         public string PropertyClass { get; set; }
+        [CsvHelper.Configuration.Attributes.Index(23)]
         public string SaleWarning { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }
@@ -83,11 +107,13 @@ namespace eRealProperty.Models
                 Delimiter = ",",
                 MissingFieldFound = null,
                 BadDataFound = null,
-                CacheFields = true
+                CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
+                TrimOptions = TrimOptions.InsideQuotes
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var command = context.Database.GetDbConnection().CreateCommand();

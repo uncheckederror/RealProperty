@@ -114,7 +114,7 @@ namespace eRealProperty.Models
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();
-            using var reader = new StreamReader(pathToCSV);
+            using var reader = new StreamReader(pathToCSV, System.Text.Encoding.ASCII);
             using var csv = new CsvReader(reader, config);
 
             var records = csv.GetRecordsAsync<ResidentialBuilding>();

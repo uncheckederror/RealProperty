@@ -13,6 +13,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
 
+using IndexAttribute = CsvHelper.Configuration.Attributes.IndexAttribute;
+
 namespace eRealProperty.Models
 {
     public class RealPropertyAccount
@@ -20,23 +22,39 @@ namespace eRealProperty.Models
         [Key]
         [Ignore]
         public Guid Id { get; set; }
+        [Index(0)]
         public string AcctNbr { get; set; }
+        [Index(1)]
         public string Major { get; set; }
+        [Index(2)]
         public string Minor { get; set; }
         [Ignore]
         public string ParcelNumber { get; set; }
+        [Index(3)]
         public string AttnLine { get; set; }
+        [Index(4)]
         public string AddrLine { get; set; }
+        [Index(5)]
         public string CityState { get; set; }
+        [Index(6)]
         public string ZipCode { get; set; }
+        [Index(7)]
         public string LevyCode { get; set; }
+        [Index(8)]
         public string TaxStat { get; set; }
+        [Index(9)]
         public int BillYr { get; set; }
+        [Index(10)]
         public string NewConstructionFlag { get; set; }
+        [Index(11)]
         public string TaxValReason { get; set; }
+        [Index(12)]
         public string ApprLandVal { get; set; }
+        [Index(13)]
         public string ApprImpsVal { get; set; }
+        [Index(14)]
         public string TaxableLandVal { get; set; }
+        [Index(15)]
         public string TaxableImpsVal { get; set; }
         [Ignore]
         public DateTime IngestedOn { get; set; }

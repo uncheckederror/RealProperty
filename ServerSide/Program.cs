@@ -38,7 +38,7 @@ namespace ServerSide
             await db.Database.MigrateAsync();
 
             // Load the data if there's nothing in the database.
-            if (!await db.RealPropertyAccounts.AnyAsync())
+            if (true)
             {
                 Log.Information("Ingesting Real Accounts");
                 await db.Database.ExecuteSqlRawAsync("DELETE FROM RealPropertyAccounts;");

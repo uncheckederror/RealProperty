@@ -60,7 +60,7 @@ namespace ServerSide
                 var bldgs = await ResidentialBuilding.IngestAsync(db, config["DataSources:ResidentialBuilding"], config["DataSources:ResidentialBuildingFileName"]);
                 if (bldgs)
                 {
-                    Log.Information($"Ingested {await db.RealPropertyAccounts.CountAsync()} Residential Buildings.");
+                    Log.Information($"Ingested {await db.ResidentialBuildings.CountAsync()} Residential Buildings.");
                 }
                 else
                 {
@@ -87,7 +87,7 @@ namespace ServerSide
                 years = await CommericalBuildingFeature.IngestAsync(db, config["DataSources:CommericalBuilding"], config["DataSources:CommericalBuildingFeatureFileName"]);
                 if (years)
                 {
-                    Log.Information($"Ingested {await db.PermitDetailHistories.CountAsync()} Commerical Building Features.");
+                    Log.Information($"Ingested {await db.CommericalBuildingFeatures.CountAsync()} Commerical Building Features.");
                 }
                 else
                 {
@@ -98,7 +98,7 @@ namespace ServerSide
                 years = await CommericalBuildingSection.IngestAsync(db, config["DataSources:CommericalBuilding"], config["DataSources:CommericalBuildingSectionFileName"]);
                 if (years)
                 {
-                    Log.Information($"Ingested {await db.PermitDetailHistories.CountAsync()} Commerical Building Sections.");
+                    Log.Information($"Ingested {await db.CommericalBuildingSections.CountAsync()} Commerical Building Sections.");
                 }
                 else
                 {
@@ -106,7 +106,7 @@ namespace ServerSide
                 }
             }
 
-            if (true)
+            if (!await db.CondoComplexes.AnyAsync())
             {
                 Log.Information("Ingesting Condo Complexes.");
                 await db.Database.ExecuteSqlRawAsync("DELETE FROM CondoComplexes;");
@@ -124,7 +124,7 @@ namespace ServerSide
                 bldgs = await CondoUnit.IngestAsync(db, config["DataSources:Condos"], config["DataSources:CondoUnitFileName"]);
                 if (bldgs)
                 {
-                    Log.Information($"Ingested {await db.CondoComplexes.CountAsync()} Condo Units.");
+                    Log.Information($"Ingested {await db.CondoUnits.CountAsync()} Condo Units.");
                 }
                 else
                 {
@@ -166,7 +166,7 @@ namespace ServerSide
                 var legals = await LegalDiscription.IngestAsync(db, config["DataSources:LegalDiscription"], config["DataSources:LegalDiscriptionFileName"]);
                 if (legals)
                 {
-                    Log.Information($"Ingested {await db.RealPropertyAccounts.CountAsync()} Legal Descriptions.");
+                    Log.Information($"Ingested {await db.LegalDiscriptions.CountAsync()} Legal Descriptions.");
                 }
                 else
                 {
@@ -174,14 +174,14 @@ namespace ServerSide
                 }
             }
 
-            if (!await db.Sales.AnyAsync())
+            if (true)
             {
                 Log.Information("Ingesting Sales.");
                 await db.Database.ExecuteSqlRawAsync("DELETE FROM Sales;");
                 var sales = await RealPropertyAccountSale.IngestAsync(db, config["DataSources:RealPropertyAccountSale"], config["DataSources:RealPropertyAccountSaleFileName"]);
                 if (sales)
                 {
-                    Log.Information($"Ingested {await db.RealPropertyAccounts.CountAsync()} Sales.");
+                    Log.Information($"Ingested {await db.Sales.CountAsync()} Sales.");
                 }
                 else
                 {
@@ -196,7 +196,7 @@ namespace ServerSide
                 var levys = await TaxLevy.IngestAsync(db, config["DataSources:TaxLevy"], config["DataSources:TaxLevyFileName"]);
                 if (levys)
                 {
-                    Log.Information($"Ingested {await db.RealPropertyAccounts.CountAsync()} Levy Codes.");
+                    Log.Information($"Ingested {await db.LevyCodes.CountAsync()} Levy Codes.");
                 }
                 else
                 {
@@ -211,7 +211,7 @@ namespace ServerSide
                 var parcels = await PropertyParcel.IngestAsync(db, config["DataSources:PropertyParcel"], config["DataSources:PropertyParcelFileName"]);
                 if (parcels)
                 {
-                    Log.Information($"Ingested {await db.RealPropertyAccounts.CountAsync()} Property Parcels.");
+                    Log.Information($"Ingested {await db.PropertyParcels.CountAsync()} Property Parcels.");
                 }
                 else
                 {

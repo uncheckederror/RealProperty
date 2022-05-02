@@ -59,13 +59,13 @@ namespace eRealProperty.Models
         [CsvHelper.Configuration.Attributes.Index(16)]
         public string SaleInstrument { get; set; }
         [CsvHelper.Configuration.Attributes.Index(17)]
-        public char AFForestLand { get; set; }
+        public string AFForestLand { get; set; }
         [CsvHelper.Configuration.Attributes.Index(18)]
-        public char AFCurrentUseLand { get; set; }
+        public string AFCurrentUseLand { get; set; }
         [CsvHelper.Configuration.Attributes.Index(19)]
-        public char AFNonProfitUse { get; set; }
+        public string AFNonProfitUse { get; set; }
         [CsvHelper.Configuration.Attributes.Index(20)]
-        public char AFHistoricProperty { get; set; }
+        public string AFHistoricProperty { get; set; }
         [CsvHelper.Configuration.Attributes.Index(21)]
         public string SaleReason { get; set; }
         [CsvHelper.Configuration.Attributes.Index(22)]

@@ -75,6 +75,7 @@ namespace eRealProperty.Models
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 NewLine = Environment.NewLine,
+                Delimiter = ",",
                 MissingFieldFound = null,
                 BadDataFound = null,
                 CacheFields = true,

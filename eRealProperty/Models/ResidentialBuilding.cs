@@ -110,6 +110,7 @@ namespace eRealProperty.Models
                 MissingFieldFound = null,
                 BadDataFound = null,
                 CacheFields = true,
+                Encoding = System.Text.Encoding.ASCII,
                 TrimOptions = TrimOptions.InsideQuotes
             };
 

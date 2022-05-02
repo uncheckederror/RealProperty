@@ -94,7 +94,8 @@ namespace eRealProperty.Models
                 Delimiter = ",",
                 BadDataFound = null,
                 MissingFieldFound = null,
-                CacheFields = true
+                CacheFields = true, 
+                Encoding = System.Text.Encoding.ASCII
             };
 
             using var transaction = await context.Database.BeginTransactionAsync();

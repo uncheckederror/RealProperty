@@ -486,7 +486,7 @@ namespace eRealProperty.Models
         public Guid Id { get; set; }
         [CsvHelper.Configuration.Attributes.Index(0)]
         public string Major { get; set; }
-        [CsvHelper.Configuration.Attributes.Index(1]
+        [CsvHelper.Configuration.Attributes.Index(1)]
         public string Minor { get; set; }
         [Ignore]
         public string ParcelNumber { get; set; }

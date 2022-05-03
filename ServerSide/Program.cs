@@ -51,6 +51,7 @@ namespace ServerSide
                     return string.Empty;
                 }
 
+                Log.Information($"Downloading {zipUrl}...");
                 var pathtoFile = await zipUrl.DownloadFileAsync(AppContext.BaseDirectory);
                 var pathToCSV = Path.Combine(AppContext.BaseDirectory, fileName);
 
@@ -65,6 +66,7 @@ namespace ServerSide
                     }
                 }
 
+                Log.Information($"Unzipping {pathToCSV}...");
                 if (!File.Exists(pathToCSV))
                 {
                     ZipFile.ExtractToDirectory(pathtoFile, AppContext.BaseDirectory);
@@ -294,7 +296,7 @@ namespace ServerSide
 
             if (!await db.RealPropertyAccountTaxYears.AnyAsync())
             {
-                Log.Information("Ingesting Tax Years.");
+                Log.Information($"Ingesting Tax Years {await db.RealPropertyAccountTaxYears.CountAsync()} found.");
                 await db.Database.ExecuteSqlRawAsync("DELETE FROM RealPropertyAccountTaxYears;");
                 var path = await GetFilePathAsync(config["DataSources:RealPropertyAccountTaxYear"], config["DataSources:RealPropertyAccountTaxYearFileName"]);
                 var years = await RealPropertyAccountTaxYear.IngestAsync(db, path, csvConfig);

@@ -6,6 +6,8 @@ using Flurl.Http;
 
 using Microsoft.EntityFrameworkCore;
 
+using Serilog;
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -212,6 +214,8 @@ namespace eRealProperty.Models
             IngestedOn.ParameterName = "$IngestedOn";
             command.Parameters.Add(IngestedOn);
 
+            var count = 0;
+
             await foreach (var record in records)
             {
                 record.Id = Guid.NewGuid();
@@ -248,6 +252,13 @@ namespace eRealProperty.Models
                 IngestedOn.Value = record.IngestedOn;
 
                 await command.ExecuteNonQueryAsync();
+
+                count++;
+
+                if (count % 10000 == 0)
+                {
+                    Log.Information($"Ingested {count} Reviews.");
+                }
             }
 
             await transaction.CommitAsync();
@@ -596,6 +607,8 @@ namespace eRealProperty.Models
 
             var records = csv.GetRecordsAsync<ReviewDescription>();
 
+            var count = 0;
+
             await foreach (var record in records)
             {
                 record.Id = Guid.NewGuid();
@@ -616,6 +629,12 @@ namespace eRealProperty.Models
                 IngestedOn.Value = record.IngestedOn;
 
                 await command.ExecuteNonQueryAsync();
+                count++;
+
+                if (count % 10000 == 0)
+                {
+                    Log.Information($"Ingested {count} Review Descriptions.");
+                }
             }
 
             await transaction.CommitAsync();

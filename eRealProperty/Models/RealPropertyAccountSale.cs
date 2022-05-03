@@ -4,6 +4,8 @@ using CsvHelper.Configuration.Attributes;
 
 using Microsoft.EntityFrameworkCore;
 
+using Serilog;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -196,6 +198,8 @@ namespace eRealProperty.Models
 
             var records = csv.GetRecordsAsync<RealPropertyAccountSale>();
 
+            var count = 0;
+
             await foreach (var record in records)
             {
                 record.Id = Guid.NewGuid();
@@ -231,6 +235,12 @@ namespace eRealProperty.Models
                 IngestedOn.Value = record.IngestedOn;
 
                 await command.ExecuteNonQueryAsync();
+                count++;
+
+                if (count % 10000 == 0)
+                {
+                    Log.Information($"Ingested {count} Real Property Sales.");
+                }
             }
 
             await transaction.CommitAsync();
